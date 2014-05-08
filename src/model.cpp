@@ -1861,6 +1861,10 @@ int ModelnData::read_bimbam_genotype(int mcmc, long start_pos, long end_pos)
 	int count_am = 0;   //failed to match allele type; 
 	int count_maf = 0;  //failed due to maf too extreme; 
 	int count_miss = 0; 
+    
+    //---- wavelets_v2_1 start ----//
+    int count_noVar = 0; //failed due to no variation in genotype 
+    //---- wavelets_v2_1 end ----//
 	vector<pair<string, pair<long, int> > > vp;
 	map<string, long> :: iterator pos_iter; 
 	map<string, int> :: iterator chr_iter; 
@@ -1890,6 +1894,18 @@ int ModelnData::read_bimbam_genotype(int mcmc, long start_pos, long end_pos)
 			m_iter ->second = 0; //mark this SNP to be excluded. 
 			continue; 
 		}
+        
+        //---- wavelets_v2_1 start ----//
+        if(mapRs2var[rs] <= 1e-10) // if there is no variation
+        {    
+            count_noVar++;
+            m_iter ->second = 0; //mark this SNP to be excluded. 
+			continue; 
+        }
+        //---- wavelets_v2_1 end ----//
+        
+        
+        
 		pair<string, pair<long, int> > tmp;
 		tmp.first.assign(m_iter->first);
 		pos_iter = mapRs2pos.find(m_iter->first);
@@ -1917,7 +1933,7 @@ int ModelnData::read_bimbam_genotype(int mcmc, long start_pos, long end_pos)
 		cout << "-bimbam: exclude " << count_am << " snps due to failure to match betweeen files." << endl;
 	}
 	if(count_maf > 0) 
-	{
+	{ 
 		fplog << "## BIMBAM: Exclude " << count_maf << " SNPs due to maf <= " << m_exclude_maf << endl;
 		cout << "-bimbam: exclude " << count_maf << " snps due to maf <= " << m_exclude_maf << endl;
 	}
@@ -1926,6 +1942,16 @@ int ModelnData::read_bimbam_genotype(int mcmc, long start_pos, long end_pos)
 		fplog << "## BIMBAM: Exclude " << count_pos << " SNPs due to no position information" << endl;
 		cout << "-bimbam: exclude " << count_pos << " snps due to no position information" << endl;
 	}
+    
+    //---- wavelets_v2_1 start ----//
+    if(count_noVar > 0) 
+	{ 
+		fplog << "## BIMBAM: Exclude " << count_noVar << " SNPs because there is no variation in genotype " << endl;
+		cout << "-bimbam: exclude " << count_noVar << " snps because there is no variation in genotype "  << endl;
+	}
+    //---- wavelets_v2_1 end ----//
+    
+    
 	stable_sort(vp.begin(), vp.end(), rscomp); 
 	//sort the rs pos vector in order of chr && pos;
 	map<string, int> mrs2index; //the column of each snp; 
@@ -2597,6 +2623,11 @@ int ModelnData::read_bimbam_genotype_distribution(int mode, int mcmc, long start
 		int count_am = 0;   //failed to match allele type; 
 		int count_maf = 0;  //failed due to maf too extreme; 
 		int count_miss = 0; 
+        
+        //---- wavelets_v2_1 start ----//
+        int count_noVar = 0; //failed due to no variation in genotype 
+        //---- wavelets_v2_1 end ----//
+
 		vector<pair<string, pair<long, int> > > vp;
 		map<string, long> :: iterator pos_iter; 
 		map<string, int> :: iterator chr_iter; 
@@ -2627,6 +2658,17 @@ int ModelnData::read_bimbam_genotype_distribution(int mode, int mcmc, long start
 				m_iter ->second = 0; //mark this SNP to be excluded. 
 				continue; 
 			}
+            
+            
+            //---- wavelets_v2_1 start ----//
+            if(mapRs2var[rs] <= 1e-10) // if there is no variation
+            {    
+                count_noVar++;
+                m_iter ->second = 0; //mark this SNP to be excluded. 
+                continue; 
+            }
+            //---- wavelets_v2_1 end ----//
+            
 			pair<string, pair<long, int> > tmp;
 			tmp.first.assign(m_iter->first);
 			pos_iter = mapRs2pos.find(m_iter->first);
@@ -2663,6 +2705,15 @@ int ModelnData::read_bimbam_genotype_distribution(int mode, int mcmc, long start
 			fplog << "## BIMBAM: Exclude " << count_pos << " SNPs due to no position information" << endl;
 			cout << "-bimbam: exclude " << count_pos << " snps due to no position information" << endl;
 		}
+        
+        //---- wavelets_v2_1 start ----//
+        if(count_noVar > 0) 
+        { 
+            fplog << "## BIMBAM: Exclude " << count_noVar << " SNPs because there is no variation in genotype " << endl;
+            cout << "-bimbam: exclude " << count_noVar << " snps because there is no variation in genotype "  << endl;
+        }
+        //---- wavelets_v2_1 end ----//
+
 		stable_sort(vp.begin(), vp.end(), rscomp); 
 		//sort the rs pos vector in order of chr && pos;
 		map<string, int> mrs2index; //the column of each snp; 
@@ -8527,7 +8578,13 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
 	}
 
+	//outfile_pval << "g: " << g << " logLR: " << logLR << " logLRg: "  << logLR_list[g] << endl;
+	
 	if(logLR >= logLR_list[g]){
+
+
+	//outfile_pval << "haha" << endl;
+
 	  numExt[g]++;
 	  if(numExt[g] == numSig){
 	    numStop[g] = eachP + 1;
@@ -8829,9 +8886,12 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
       //--- wavelets_v2.1 start ---//   
       //outfile_p << endl;
       //--- wavelets_v2.1 start ---//   
-
+ 
+      cout  << " logLR: " << max_logLR << " logLRg: "  << gsl_vector_max(logLR_vec) << endl;
 
       if(max_logLR <= gsl_vector_max(logLR_vec)){
+
+	cout << "haha " << endl;
 	  numExt++;
 	  if(numExt == numSig){
 	    numStop = eachP + 1;
