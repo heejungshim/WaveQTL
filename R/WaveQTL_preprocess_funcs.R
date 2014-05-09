@@ -184,6 +184,30 @@ Normalize.WCs <- function(WCs, Covariates=NULL){
 
 
 
+##' Generate Group information.  
+##'
+##'
+##' This function quantile-transforms WCs to a standard normal ditribution.
+##' If covarites are provided, it corrects the quantile-transformed WCs for the covariates
+##' and quantile-transforms the covariates-corrected WCs to a standard normal distribution.
+##' @param WCs a matrix with N (# of samples) by T (# of bps in a region or # of WCs);
+##' n-th row contains WCs for n-th sample.
+##' @param Covariates default = NULL; a matrix (or a vector if M = 1) with N by M (# of covariates)
+##' containing covariates to correct for.
+##' @return QT_WCs a matrix with N (# of samples) by T (# of bps in a region or # of WCs);
+##' It contains normalized WCs (Quantile-transformed and covariate-corrected WCs).
+generate_Group <- function(J, group.scale=NULL){
+    
+        if(is.null(group.scale)){
+            group.scale = 0:J
+        }
+
+        IX = 2^(group.scale[-1]-1)
+        group = c(1, (IX+1))
+
+        return(group)
+    }
+
 
 
 
@@ -225,8 +249,7 @@ Normalize.WCs <- function(WCs, Covariates=NULL){
 
 
 
-
-WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NULL, meanR.thresh = 2){
+WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NULL, meanR.thresh = 2, filter.number=1, family="DaubExPhase"){
 
     
 	if(is.vector(Data)){dim(Data)<- c(1,length(Data))} #change Data to matrix
@@ -242,8 +265,8 @@ WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NUL
   	J = log2(T)
   	if(!isTRUE(all.equal(J,trunc(J)))){stop("Error: number of columns of Data must be power of 2")}
   	N = dim(Data)[1]
-
-
+        
+        
 	### generate filtered.WCs
 	if(!is.null(meanR.thresh)){
 		filtered.WCs = fiter.WCs(Data, meanR.thresh)				
@@ -259,7 +282,7 @@ WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NUL
         }
         
 	### Wavelet Transform
-	WCs = FWT(DataC)$WCs
+	WCs = FWT(DataC, filter.number=filter.number, family=family)$WCs
 	
 	### Quantile Transform to a standard normal distribution 
 	if(N > 1){
