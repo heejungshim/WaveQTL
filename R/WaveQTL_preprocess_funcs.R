@@ -24,12 +24,12 @@ require("wavethresh")
 ##'
 ##' This function filters out some WCs that are computed based on very
 ##' low counts. This function considers WCs as low count if the total
-##' counts used in their computation were less than `meanR.thresh'
+##' counts used in their computation were less than or equal to `meanR.thresh'
 ##' per individual on average.
 ##' @param Data matrix (or a vector when N = 1) with N (# of samples) by T (# of bps in a region); This matrix contains original data before a wavelet transform; Here, T should be a power of 2.  
 ##' @param meanR.thresh If average reads across individuals <= meanR.thresh,
 ##' those WCs are filtered out.
-##' @return filtered.WCs a vector of length T; t-th element indicates whether t-th WC in output from the fuction \code{\link{FWT}} is filtered (0) or not (1). 
+##' @return filtered.WCs a vector of length T; t-th element indicates whether t-th WC in output from the function \code{\link{FWT}} is filtered (0) or not (1). 
 fiter.WCs <- function(Data, meanR.thresh){
 
         if(is.vector(Data)){
@@ -79,8 +79,8 @@ fiter.WCs <- function(Data, meanR.thresh){
 ##' This matrix contains original data to be decomposed; Here, T should be a power of 2.
 ##' @param filter.number default=1; argument to the function \code{\link{wd}} in the R package
 ##' \code{\link{wavethresh}}; See their manual for details.
-##' @param family default="DaubExPhase"; argument to the function \code{\link{wd}} in the R package
-##' \code{\link{wavethresh}}; See their manual for details.
+##' @param family default="DaubExPhase"; argument to the function \code{\link{wd}} in
+##' the R package \code{\link{wavethresh}}; See their manual for details.
 ##' @return WCs a matrix with N (# of samples) by T (# of bps in a region); n-th row contains WCs
 ##' for n-th sample; WCs are ordered from low resolution WC to high resolution WC; For example,
 ##' with a Haar wavelet transform, the first column contains WC (precisely speaking, scaling
@@ -158,13 +158,13 @@ corrected_forCovariates <- function(x, Covariates){
 ##' Normalize WCs. 
 ##'
 ##'
-##' This function quantile-transforms WCs to a standard normal ditribution.
-##' If covarites are provided, it corrects the quantile-transformed WCs for the covariates
+##' This function quantile-transforms WCs to a standard normal distribution.
+##' If covariates are provided, it corrects the quantile-transformed WCs for the covariates
 ##' and quantile-transforms the covariates-corrected WCs to a standard normal distribution.
 ##' @param WCs a matrix with N (# of samples) by T (# of bps in a region or # of WCs);
 ##' n-th row contains WCs for n-th sample.
-##' @param Covariates default = NULL; a matrix (or a vector if M = 1) with N by M (# of covariates)
-##' containing covariates to correct for.
+##' @param Covariates default = NULL; a matrix (or a vector if M = 1) with N by M
+##' (# of covariates) containing covariates to correct for.
 ##' @return QT_WCs a matrix with N (# of samples) by T (# of bps in a region or # of WCs);
 ##' It contains normalized WCs (Quantile-transformed and covariate-corrected WCs).
 Normalize.WCs <- function(WCs, Covariates=NULL){
@@ -187,68 +187,86 @@ Normalize.WCs <- function(WCs, Covariates=NULL){
 ##' Generate Group information.  
 ##'
 ##'
-##' This function quantile-transforms WCs to a standard normal ditribution.
-##' If covarites are provided, it corrects the quantile-transformed WCs for the covariates
-##' and quantile-transforms the covariates-corrected WCs to a standard normal distribution.
-##' @param WCs a matrix with N (# of samples) by T (# of bps in a region or # of WCs);
-##' n-th row contains WCs for n-th sample.
-##' @param Covariates default = NULL; a matrix (or a vector if M = 1) with N by M (# of covariates)
-##' containing covariates to correct for.
-##' @return QT_WCs a matrix with N (# of samples) by T (# of bps in a region or # of WCs);
-##' It contains normalized WCs (Quantile-transformed and covariate-corrected WCs).
-generate_Group <- function(J, group.scale=NULL){
+##' This function generates information on which WCs share hyperparameter \pi
+##' in the model described in Shim and Stephens 2014. This information is used
+##' as an input in WaveQTL software. As default (group.scale=NULL), the function
+##' outputs group information indicating that WCs in the same scale share \pi.
+##' To put WCs from multiple scales (only for consecutive scales) in the same group,
+##' instruction should be provided in group.scale (see below for details). 
+##' @param numWCs a positive number; power of 2; total number of WCs. 
+##' @param group.scale default = NULL; a vector of nonnegative numbers; length of
+##' the vector is the number of groups; i-th element in the vector indicates
+##' the first scale of WCs for i-th group; Suppose group.scale = c(0, 1, 4, 5)
+##' and numWCs = 1024. Then, there are four groups. The first group contains WC in
+##' the 0-th scale. The second group consists of WCs from the 1st to 3rd scales.
+##' WCs in the 4th scale are in the third group and WCs from the 5th
+##' to the last (10th) scales are in the fourth group. 
+##' @return group a vector of positive numbers; length of the vector is the number
+##' of groups; i-th element in the vector indicates the start position of WCs for i-th
+##' group from a list of all WCs; Suppose group = c(1, 2, 9, 17) which can be obtained
+##' by using group.scale = c(0, 1, 4, 5) and numWCs = 1024 as input. Then, there are
+##' four groups of WCs. The first group has one WC that is in the first position from
+##' the list of all WCs. The second group has 7 WCs that locate from the second position
+##' to 8th position. WCs from 9th to 16th positions are in the third group and WCs
+##' from 17th to the end (1024th) positions are in the fourth group. 
+generate_Group <- function(numWCs, group.scale=NULL){
     
-        if(is.null(group.scale)){
-            group.scale = 0:J
-        }
-
-        IX = 2^(group.scale[-1]-1)
-        group = c(1, (IX+1))
-
-        return(group)
+    J = log(numWCs, 2)
+    
+    if(is.null(group.scale)){
+        group.scale = 0:J
     }
 
+    IX = 2^(group.scale[-1]-1)
+    group = c(1, (IX+1))
+
+    return(group)
+}
 
 
 
+##' Preprocess functional data for a WaveQTL software. 
 ##'
 ##'
-##' ##' Preprocess functional data for a WaveQTL software. 
-##'
-##'
-##' This function preprocesses functiona data for a wavelet-based approach implmented in
-##' a WaveQTL software.
-##'
-##'
-##' performs a wavelet transform using a \code{\link{wavethresh}} R package
-##' and returns WCs in the order that corresponds to output from the function
-##' \code{\link{fiter.WCs}}. For now, the function doesn't allow users to specify the level of wavelet
+##' This function preprocesses functional data for a wavelet-based approach
+##' implemented in a WaveQTL software. If library.read.depth is provided,
+##' the function standardizes the functional data by the library read depth
+##' to account for different read depths across individuals. Then, the function
+##' decomposes the (standardized) functional data into wavelet coefficients (WCs)
+##' using a \code{\link{wavethresh}} R package and normalizes the WCs.
+##' If Covariates are provided, the function corrects the WCs for the Covariates
+##' during the normalization. See the description of the function
+##' \code{\link{Normalize.WCs}} for details of normalization. Users can specify
+##' which type of wavelet transform should be applied by using filter.number and
+##' family in input arguments. They are arguments to the function \code{\link{wd}}
+##' in the R package \code{\link{wavethresh}}; See their manual for details.
+##' For now, the function doesn't allow users to specify the level of wavelet
 ##' decomposition and uses the maximum level decomposition.
+##' In addition to wavelet transform, this function filters out some WCs
+##' that are computed based on very low counts. The function considers WCs
+##' as low count if the total counts used in their computation were less than
+##' or equal to `meanR.thresh' per individual on average. 
 ##' @param Data matrix (or a vector when N = 1) with N (# of samples) by T (# of bps in a region);
-##' This matrix contains original data to be decomposed; Here, T should be a power of 2.
+##' This matrix contains original functional data to be decomposed;
+##' Here, T should be a power of 2.
+##' @param library.read.depth default= NULL a vector of length N (# of samples);
+##' i-th element contains library read depth for i-th sample.
+##' @param Covariates default = NULL; a matrix (or a vector if M = 1)
+##' with N by M (# of covariates) containing covariates to correct for.
+##' @param meanR.thresh If average reads across individuals <= meanR.thresh,
+##' those WCs are filtered out.
 ##' @param filter.number default=1; argument to the function \code{\link{wd}} in the R package
 ##' \code{\link{wavethresh}}; See their manual for details.
-##' @param family default="DaubExPhase"; argument to the function \code{\link{wd}} in the R package
-##' \code{\link{wavethresh}}; See their manual for details.
+##' @param family default="DaubExPhase"; argument to the function \code{\link{wd}}
+##' in the R package \code{\link{wavethresh}}; See their manual for details.
 ##' @return WCs a matrix with N (# of samples) by T (# of bps in a region); n-th row contains WCs
 ##' for n-th sample; WCs are ordered from low resolution WC to high resolution WC; For example,
 ##' with a Haar wavelet transform, the first column contains WC (precisely speaking, scaling
 ##' coefficient) that corresponds to sum of data in the region. The second column contains WC
 ##' that contrasts the data in the first half vs second half of the region. The last column
 ##' contains WC that contrasts the data in the (T-1)-th bp vs T-th bp.
-
-
-# input 
-# 1. Data : N (# of samples) by T (# of bps in a region); read count at t-th bp (t = 1, ..., T) for i-th sample (i = 1, ..., N)
-# 2. Read.depth (=NULL) : a vector of length N; read.depth for each individual
-# 3. C (=NULL) : N by M (# of covariates); covariates to correct for
-# 4. meanR.thresh (=2) : average reads across individuals < meanR.thresh, we will filter those WCs. 
-# output
-# 1. WCs : N by T (# of WCs)
-# 2. filtered.WCs : a vector of length T (either 0 or 1 indicating whether it's filtered (0) or not (1) 
-
-
-
+##' @return filtered.WCs a vector of length T; t-th element indicates
+##' whether t-th WC in output (WCs) filtered (0) or not (1). 
 WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NULL, meanR.thresh = 2, filter.number=1, family="DaubExPhase"){
 
     
