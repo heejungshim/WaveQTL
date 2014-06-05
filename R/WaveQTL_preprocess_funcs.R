@@ -174,11 +174,11 @@ Normalize.WCs <- function(WCs, Covariates=NULL){
 
 	# correct for covariates and QT to a standard normal distribution. 
 	if(!is.null(Covariates)){
-		corrected_QT.dat = apply(QT_dat, 2, corrected_forCovariates, C)
-		QT.dat = apply(corrected_QT.dat, 2, QT_randomTie)
+		corrected_QT.dat = apply(QT_dat, 2, corrected_forCovariates, Covariates)
+		QT_dat = apply(corrected_QT.dat, 2, QT_randomTie)
 	}
 
-	return(list(QT_WCs = QT.dat))
+	return(list(QT_WCs = QT_dat))
 
 }
 
@@ -271,10 +271,10 @@ WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NUL
 
     
 	if(is.vector(Data)){dim(Data)<- c(1,length(Data))} #change Data to matrix
-  	if(nrow(Data)==1){C = NULL} #if only one observation, don't correct for covariates
+  	if(nrow(Data)==1){Covariates = NULL} #if only one observation, don't correct for covariates
 
-	if(!is.null(C)){
-		if(is.vector(C)){dim(C)<- c(1,length(C))} #change C to matrix
+	if(!is.null(Covariates)){
+		if(is.vector(Covariates)){dim(Covariates)<- c(1,length(Covariates))} #change C to matrix
 	}
 
 
@@ -302,9 +302,9 @@ WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NUL
 	### Wavelet Transform
 	WCs = FWT(DataC, filter.number=filter.number, family=family)$WCs
 	
-	### Quantile Transform to a standard normal distribution 
+	### Normalize WCs 
 	if(N > 1){
-		WCs = Quantile.Transform(WCs, Covariates)
+		WCs = Normalize.WCs(WCs, Covariates)
 	}
 
 	return(list(WCs = WCs$QT_WCs, filtered.WCs = filtered.WCs))
