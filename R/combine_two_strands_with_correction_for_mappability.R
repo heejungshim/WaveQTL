@@ -20,7 +20,7 @@
 #######################################################
 path = "/mnt/lustre/home/shim/WaveQTL/data/dsQTL/DNase.chr17.10160989.10162012.dat"
 DNase.dat = read.table(path)
-dim(DNase.dat) # 70 by 2048; each column corresponds to each individual; the first (second) 1024 rows contain DNass-seq read count from +(-) strand in each positions;
+dim(DNase.dat) # 70 by 2048; each column corresponds to each individual; the first (second) 1024 rows contain DNass-seq read count from +(-) strand in each positions; We already masked 5bp surrounding any SNP (i.e., the SNP position and 2bp on either side) to eliminate biases stemming from DNase I seqeucne preference (see the supplementary material of Degner et al 2012 for details). 
 
 #######################################################
 ## Read mappability.
