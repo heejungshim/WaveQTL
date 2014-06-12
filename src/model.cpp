@@ -96,8 +96,7 @@ ModelnData::ModelnData(void)
 	vPARCrs.clear(); 
 	vPARCpos.clear(); 
 	parcLoci = 0; 
-#endif
-	
+#endif	
 	nLoci = 0; 
 	nPH = 1; 
 	nLevel = 1; 
@@ -8887,7 +8886,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
       //outfile_p << endl;
       //--- wavelets_v2.1 start ---//   
  
-      cout  << " logLR: " << max_logLR << " logLRg: "  << gsl_vector_max(logLR_vec) << endl;
+      //cout  << " logLR: " << max_logLR << " logLRg: "  << gsl_vector_max(logLR_vec) << endl;
 
       if(max_logLR <= gsl_vector_max(logLR_vec)){
 
