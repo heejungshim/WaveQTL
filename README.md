@@ -18,3 +18,5 @@ cd into the `WaveQTL/` directory
 
     make all
 
+binary executable file for Linux is in the `WaveQTL/bin/` directory (complied on 06/12/2014).
+
