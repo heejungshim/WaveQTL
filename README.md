@@ -12,7 +12,7 @@ This library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-# Installation
+## Installation
 
 cd into the `WaveQTL/` directory
 
@@ -20,11 +20,11 @@ cd into the `WaveQTL/` directory
 
 binary executable file for Linux is in the `WaveQTL/bin/` directory (complied on 06/12/2014).
 
-# User manual 
+## User manual 
 
 User manual is in the `WaveQTL/doc/` directory (last edited on 06/12/2014).
 
-# Bug reports
+## Bug reports
 
 Report bugs as issues on this repository.
 
