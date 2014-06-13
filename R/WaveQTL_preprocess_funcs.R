@@ -259,6 +259,9 @@ generate_Group <- function(numWCs, group.scale=NULL){
 ##' \code{\link{wavethresh}}; See their manual for details.
 ##' @param family default="DaubExPhase"; argument to the function \code{\link{wd}}
 ##' in the R package \code{\link{wavethresh}}; See their manual for details.
+##' @param no.QT TRUE or FALSE; default=FALSE; if no.QT == FALSE, perform qunantile transform during normalization (often for testing); if no.QT == TRUE, just correct WCs for covariates (often for effect size estimation).
+##'
+##' 
 ##' @return WCs a matrix with N (# of samples) by T (# of bps in a region); n-th row contains WCs
 ##' for n-th sample; WCs are ordered from low resolution WC to high resolution WC; For example,
 ##' with a Haar wavelet transform, the first column contains WC (precisely speaking, scaling
@@ -267,7 +270,7 @@ generate_Group <- function(numWCs, group.scale=NULL){
 ##' contains WC that contrasts the data in the (T-1)-th bp vs T-th bp.
 ##' @return filtered.WCs a vector of length T; t-th element indicates
 ##' whether t-th WC in output (WCs) filtered (0) or not (1). 
-WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NULL, meanR.thresh = 2, filter.number=1, family="DaubExPhase"){
+WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NULL, meanR.thresh = 2, no.QT = FALSE, adjust.scale = 10^10, filter.number=1, family="DaubExPhase"){
 
     
 	if(is.vector(Data)){dim(Data)<- c(1,length(Data))} #change Data to matrix
@@ -292,7 +295,8 @@ WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NUL
 		filtered.WCs = NULL
 	}	
 
-	### corrected for read depth
+        
+        ### corrected for read depth
         if(!is.null(library.read.depth)){
             DataC = Data/library.read.depth
         }else{
@@ -300,16 +304,24 @@ WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NUL
         }
         
 	### Wavelet Transform
-	WCs = FWT(DataC, filter.number=filter.number, family=family)$WCs
+        WCs = FWT(DataC, filter.number=filter.number, family=family)$WCs
+
 	
-	### Normalize WCs 
-	if(N > 1){
+        if(!no.QT){ # Normalize phenotype for testing
+            ### Normalize WCs    
+            if(N > 1){
 		WCs = Normalize.WCs(WCs, Covariates)
-	}
-
-	return(list(WCs = WCs$QT_WCs, filtered.WCs = filtered.WCs))
-
-} 
+            }
+            WCs = WCs$QT_WCs
+        }else{  # Normalize for effect size estimation 
+            ### correct for Covariates 
+            if(!is.null(Covariates)){
+		WCs = apply(WCs, 2, corrected_forCovariates, Covariates)
+            }
+        }
+        
+        return(list(WCs = WCs, filtered.WCs = filtered.WCs))
+    } 
 
 
 
