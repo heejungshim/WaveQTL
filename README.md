@@ -16,9 +16,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 A key factor that distinguishes a wavelet-based approach from typical association analysis is to better exploit high-resolution measurements provided by high-throughput sequencing assays (see Shim and Stephens 2014 for motivations). The implemented wavelet-based methods aim to  
 
-### test for genetic association of functional phenotype
-### provide explanations for observed associations such as which parts and features of the data are driving the association
-### make applications to large-scale genetic association analyses computationally tractable.
+1. test for genetic association of functional phenotype
+2. provide explanations for observed associations such as which parts and features of the data are driving the association
+3. make applications to large-scale genetic association analyses computationally tractable.
 
 Although wavelet methods were motivated primarily by genetic association studies for high-throughput sequencing data, they could also test for association between functional data and
 other covariates, either continuous or discrete. For example, in a genomics context, it could be used to detect differences in gene expression (from RNA-seq data) or TF binding (from ChIP-seq data) measured on two groups (e.g. treatment conditions or cell types). Or it could be used to associate a functional phenotype, such as chromatin accessibility, with a continuous covariate, such as overall expression of a gene. It could also be used for genome-wide association studies of functional phenotypes unrelated to sequencing.
