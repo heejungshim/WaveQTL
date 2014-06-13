@@ -1,4 +1,3 @@
-# WaveQTL
 
 This repository contains WaveQTL, a software implementing a wavelet-based approach for genetic association analysis of functional phenotypes (e.g. sequence data arising from high-throughput sequencing assays).
 
