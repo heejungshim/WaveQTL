@@ -14,6 +14,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 # Installation
 
-cd into the WaveQTL/ directory
-  
-  make all
+cd into the `WaveQTL/` directory
+
+    make all
+
