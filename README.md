@@ -12,13 +12,17 @@ This library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+## binary executable file
+
+binary executable file for Linux is in the `WaveQTL/bin/` directory (complied on 06/12/2014).
+
 ## Installation
 
 cd into the `WaveQTL/` directory
 
     make all
 
-binary executable file for Linux is in the `WaveQTL/bin/` directory (complied on 06/12/2014).
+Then, binary executable file will be created in the `WaveQTL/` directory.
 
 ## User manual 
 
