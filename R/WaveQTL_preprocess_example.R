@@ -20,9 +20,13 @@
 ## read functions for WaveQTL preprocess
 source("WaveQTL_preprocess_funcs.R")
 
+## set seed
+set.seed(1)
+
 ## specify a path to example data which is shown in Figure 2 of Shim and Stephens 2014. 
 data.path = "../data/dsQTL/"
 output.path = "../test/dsQTL/"
+
 
 ## read functional data
 pheno.dat = as.matrix(read.table(paste0(data.path, "chr17.10160989.10162012.pheno.dat")))
@@ -46,6 +50,8 @@ str(res)
 #List of 2
 # $ WCs         : num [1:70, 1:1024] -1.415 0.126 0.347 -1.323 0.674 ...
 # $ filtered.WCs: num [1:1024] 1 1 1 1 1 1 1 1 0 0 ...
+
+
 
 
 ## save output as files
