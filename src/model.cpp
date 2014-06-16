@@ -2939,76 +2939,105 @@ int ModelnData::read_bimbam_genotype_distribution(int mode, int mcmc, long start
 //--- wavelets start --//
 void ModelnData::read_extra_information_for_functional_phenotype()
 {
-  if(group_start_n.size() == 0 || use_pheno_n.size() == 0) 
+  /*
+  if(use_pheno_n.size() == 0) 
   {
     fplog << "ERROR: Either group start file or use pheno file is not provided. "  << endl; 
     cout << "-bimbam: Either group start file or use pheno file is not provided. " << endl; 
-    safe_exit(); 
+    //safe_exit(); 
   }
-
-
+  */
+  
   fstream infile; 
   streambuf * pbuf; 
   string sfn; 
   char delimit[] = ",; :\t";
   string line;	
   char * res;
-  sfn.assign(group_start_n.at(0)); 
-  infile.open(sfn.c_str(), ios::in);
-  if(!infile.is_open())
-  {
-    fplog << "ERROR: BIMBAM cannot open group start file "  << endl; 
-    cout << "-bimbam: cannot open group start file " << endl; 
-    safe_exit(); 
-  }
-  pbuf = infile.rdbuf();
   
-			
-  group_start.resize(0);
-  line.assign(getline(pbuf)); 
-  res = strtok((char*)line.c_str(), delimit); 
-  for (int np = 0; np < nPH; np++)
-  {
-    if(res == NULL) break; 
-    string sv(res);
-    group_start.push_back((int)atof(sv.data()));
-    res = strtok(NULL, delimit); 
-  }
+  if(group_start_n.size() == 0){
+    fplog << "## Group start file is not provided. WCs in the same scale share the same pi"  << endl; 
+    cout << "Group start file is not provided. WCs in the same scale share the same pi"  << endl;   
+    group_start.resize(0);
+    if(nPH > 1){
+      group_start.push_back(1);
+      group_start.push_back(2);
+      int log2nPH = (int) (log(nPH)/log(2));
+      int grouptt = 2;
+      if(log2nPH > 1){
+	for(int np = 1; np < log2nPH; np++){
+	  grouptt = grouptt + (int) pow(2, np-1);
+	  group_start.push_back(grouptt);
+	}
+      }
+    }
+  }else{
 
-  //		for(int np = 0; np < (int) group_start.size(); np++){
+    sfn.assign(group_start_n.at(0)); 
+    infile.open(sfn.c_str(), ios::in);
+    if(!infile.is_open())
+      {
+	fplog << "ERROR: BIMBAM cannot open group start file "  << endl; 
+	cout << "-bimbam: cannot open group start file " << endl; 
+	safe_exit(); 
+      }
+    pbuf = infile.rdbuf();
+			
+    group_start.resize(0);
+    line.assign(getline(pbuf)); 
+    res = strtok((char*)line.c_str(), delimit); 
+    for (int np = 0; np < nPH; np++){
+      if(res == NULL) break; 
+      string sv(res);
+      group_start.push_back((int)atof(sv.data()));
+      res = strtok(NULL, delimit); 
+    }
+    infile.close(); 
+  }
+  
+  //  		for(int np = 0; np < (int) group_start.size(); np++){
   //			  cout << "group start " << group_start[np] << endl;
   //			}
 
-  infile.close(); 
 
 
-  sfn.assign(use_pheno_n.at(0)); 
-  infile.open(sfn.c_str(), ios::in);
-  if(!infile.is_open())
+  if(use_pheno_n.size() == 0) 
   {
-    fplog << "ERROR: BIMBAM cannot open use pheno file "  << endl; 
-    cout << "-bimbam: cannot open use pheno file " << endl; 
-    safe_exit(); 
-  }
-  pbuf = infile.rdbuf();
-  
-			
-  use_pheno.resize(0);
-  line.assign(getline(pbuf)); 
-  res = strtok((char*)line.c_str(), delimit); 
-  for (int np = 0; np < nPH; np++)
-  {
-    if(res == NULL) break; 
-    string sv(res);
-    use_pheno.push_back((int)atof(sv.data()));
-    res = strtok(NULL, delimit); 
-  }
+    fplog << "## Information on filtering status of WCs is not provided. All WCs are included in analysis."  << endl; 
+    cout << "Information on filtering status of WCs is not provided. All WCs are included in analysis." << endl; 
+    use_pheno.resize(0);
+    for (int np = 0; np < nPH; np++){
+      use_pheno.push_back(1);
+    }
+  }else{
 
-  //		for(int np = 0; np < (int) use_pheno.size(); np++){
+    sfn.assign(use_pheno_n.at(0)); 
+    infile.open(sfn.c_str(), ios::in);
+    if(!infile.is_open())
+      {
+	fplog << "ERROR: BIMBAM cannot open use pheno file "  << endl; 
+	cout << "-bimbam: cannot open use pheno file " << endl; 
+	safe_exit(); 
+      }
+    pbuf = infile.rdbuf();
+  			
+    use_pheno.resize(0);
+    line.assign(getline(pbuf)); 
+    res = strtok((char*)line.c_str(), delimit); 
+    for (int np = 0; np < nPH; np++)
+      {
+	if(res == NULL) break; 
+	string sv(res);
+	use_pheno.push_back((int)atof(sv.data()));
+	res = strtok(NULL, delimit); 
+      }
+
+    infile.close();
+
+  } 
+  // 		for(int np = 0; np < (int) use_pheno.size(); np++){
   //			  cout << "use_pheno " << use_pheno[np] << endl;
-  //			}
-
-  infile.close(); 
+  //              }
   group_start_n.resize(0);
   use_pheno_n.resize(0);
 
@@ -8021,14 +8050,14 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
   fstream outfile; 
   string sfn("output/");
   sfn.append(fnOutput);
-  sfn.append(".fph.BFs.txt");
+  sfn.append(".fph.logLR.txt");
   outfile.open(sfn.c_str(), ios::out);
   if(!outfile.is_open()) {
     cout << "can't open file ... " << endl;  
     exit(0); 
   }
 
-
+  
   fstream outfile_pi; 
   string sfn_pi("output/");
   sfn_pi.append(fnOutput);
@@ -8042,6 +8071,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
   //--- wavelets_v1.3 start ---//
 
+  /*
   fstream outfile_phi; 
   string sfn_phi("output/");
   sfn_phi.append(fnOutput);
@@ -8061,6 +8091,8 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
     cout << "can't open file ... " << endl;  
     exit(0); 
   }
+  */
+
 
   fstream outfile_mean; 
   string sfn_mean("output/");
@@ -8072,6 +8104,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
     exit(0); 
   }
 
+  /*
   fstream outfile_var1; 
   string sfn_var1("output/");
   sfn_var1.append(fnOutput);
@@ -8081,6 +8114,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
     cout << "can't open file ... " << endl;  
     exit(0); 
   }
+  */
 
   fstream outfile_var; 
   string sfn_var("output/");
@@ -8258,6 +8292,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
 
     // mean1 and var1
+    /*
     double out_res;
     outfile_mean1 << vsRsnum.at(g) << " ";      
     for(int p =0; p < nPH; p++){
@@ -8280,10 +8315,11 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
       outfile_var1 << buf;
     }
     outfile_var1 << endl;
+    */
 
     // phi, mean, and var
     double phi, mean_out, var_out, mean1_out, var1_out;
-    outfile_phi << vsRsnum.at(g) << " ";  
+    //outfile_phi << vsRsnum.at(g) << " ";  
     outfile_mean << vsRsnum.at(g) << " ";  
     outfile_var << vsRsnum.at(g) << " ";
     int p;
@@ -8303,33 +8339,40 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 	  var1_out = gsl_vector_get(var1,p);
 	  mean_out = phi*mean1_out;
 	  var_out = phi*(var1_out + mean1_out*mean1_out*(1-phi));
-	  
+	  /*
 	  if(phi < 1e-5) 
 	    sprintf(buf, "%.5f ", phi); 
 	  else 
 	    sprintf(buf, "%+.5f ", phi); 
 	  outfile_phi << buf;
+          */
 
+          /*
 	  if(mean_out < 1e-5) 
 	    sprintf(buf, "%.5f ", mean_out); 
 	  else 
 	    sprintf(buf, "%+.5f ", mean_out); 
 	  outfile_mean << buf;	  
-	    
+	  */
+          outfile_mean << mean_out << " ";
+
+          /*  
 	  if(var_out < 1e-5) 
 	    sprintf(buf, "%.5f ", var_out); 
 	  else 
 	    sprintf(buf, "%+.5f ", var_out); 
 	  outfile_var << buf;	  
+          */
+          outfile_var << var_out << " ";
 
 	}else{	
-
+          /*
 	  if(pi < 1e-5) 
 	    sprintf(buf, "%.5f ", pi); 
 	  else 
 	    sprintf(buf, "%+.5f ", pi); 
 	  outfile_phi << buf;
-
+          */
 	  sprintf(buf, "%.5f ", 0.0);
 	  outfile_mean << buf;
 	  outfile_var << buf;
@@ -8337,7 +8380,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
       }
     }
-    outfile_phi << endl;
+    //outfile_phi << endl;
     outfile_mean << endl;
     outfile_var << endl;
 
@@ -8356,23 +8399,23 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
   //--- wavelets_v1.3 start ---//
 
-  outfile_phi.close(); 
-  cout << sfn_phi << " has been created." << endl;
+  //outfile_phi.close(); 
+  //cout << sfn_phi << " has been created." << endl;
 
   outfile_mean.close(); 
   cout << sfn_mean << " has been created." << endl;
 
-  outfile_mean1.close(); 
-  cout << sfn_mean1 << " has been created." << endl;
+  //outfile_mean1.close(); 
+  //cout << sfn_mean1 << " has been created." << endl;
 
   outfile_var.close(); 
   cout << sfn_var << " has been created." << endl;
 
-  outfile_var1.close(); 
-  cout << sfn_var1 << " has been created." << endl;
+  //outfile_var1.close(); 
+  //cout << sfn_var1 << " has been created." << endl;
 
-  gsl_vector_free(mean1); 
-  gsl_vector_free(var1); 
+  //gsl_vector_free(mean1); 
+  //gsl_vector_free(var1); 
   //--- wavelets_v1.3 end ---//
 
   
@@ -8647,7 +8690,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 	outfile_pval << numExt[g];
 	//p_val = (double)(numExt[g]+1)/denNumPerm;
       }else{
-	outfile_pval << "NA";
+	outfile_pval << numExt[g];
 	//p_val = pval[g];
       }
       outfile_pval << " ";
@@ -8915,7 +8958,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
     if(doneP == 0){
       outfile_pval << numExt;
     }else{
-      outfile_pval << "NA";
+      outfile_pval << numExt;
     }
     outfile_pval << endl;
 
