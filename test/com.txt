@@ -1,1 +1,0 @@
-../WaveQTL -gmode 1 -g ../data/geno.txt -p ../data/pheno.txt -group ../data/group.txt -u ../data/use.txt -o output -f 1024 -numPerm 10 -fph 3
