@@ -66,6 +66,7 @@ cat(group.info, file = paste0(output.path, "group.txt"))
 
 
 ## for effect size estimation, we need WCs without QT.
+set.seed(1)
 res.noQT = WaveQTL_preprocess(Data = pheno.dat, library.read.depth=library.read.depth , Covariates = Covariates, meanR.thresh = meanR.thresh, no.QT = TRUE)
 
 write.table(res.noQT$WCs, file= paste0(output.path, "WCs.no.QT.txt"), row.names=FALSE, col.names = FALSE, quote=FALSE)
