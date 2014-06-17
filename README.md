@@ -36,7 +36,7 @@ Then, binary executable file will be created in the `WaveQTL/` directory.
 
 ## User manual 
 
-User manual is in the `WaveQTL/doc/` directory (last edited on 06/16/2014).
+User manual is in the `WaveQTL/doc/` directory.
 
 ## dsQTLs and analysis in Shim and Stephens (2014)
 
