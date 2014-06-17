@@ -24,7 +24,7 @@ other covariates, either continuous or discrete. For example, in a genomics cont
  
 ## Binary executable file
 
-Binary executable file for Linux is in the `WaveQTL/bin/` directory (complied on 06/12/2014).
+Binary executable file for Linux is in the `WaveQTL/bin/` directory (complied on 06/16/2014).
 
 ## Installation
 
@@ -36,7 +36,12 @@ Then, binary executable file will be created in the `WaveQTL/` directory.
 
 ## User manual 
 
-User manual is in the `WaveQTL/doc/` directory (last edited on 06/12/2014).
+User manual is in the `WaveQTL/doc/` directory (last edited on 06/16/2014).
+
+## dsQTLs and analysis in Shim and Stephens (2014)
+
+1. Information on dsQTLs identified by our analysis in Shim and Stephens (2014) is in `WaveQTL/Shim_2014/` directory.
+2. In the user manual, we describe how to perform an analysis in Shim and Stephens (2014) for a given site, starting from reading DNase-seq data at the site on 70 individuals from files as in hdf5 format to plotting estimated effect sizes in the data space as shown in the paper. 
 
 ## Bug reports
 
