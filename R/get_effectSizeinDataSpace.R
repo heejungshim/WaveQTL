@@ -39,7 +39,7 @@ beta_dataS[1:6]
 
 
 
-## Read posterior varince in Wavelet space, transform them back to data space, and get standard deviation
+## Read posterior variance in Wavelet space, transform them back to data space, and get standard deviation
 beta_var = as.numeric(read.table(beta_var_path)[sel_geno_IX,2:1025])
 beta_var_dataS = as.vector(matrix(data=beta_var, nr = 1, nc = 1024)%*%as.matrix(W2mat_1024))
 beta_sd_dataS = sqrt(beta_var_dataS)
@@ -52,7 +52,7 @@ beta_sd_dataS[1:6]
 
 
 
-## Visiualize estimated effect size in the data space
+## Visualize estimated effect size in the data space
 ymin_beta = min(beta_dataS - 3*beta_sd_dataS) - abs(min(beta_dataS - 3*beta_sd_dataS))*0.0000000001
 ymax_beta = max(beta_dataS + 3*beta_sd_dataS) + abs(max(beta_dataS + 3*beta_sd_dataS))*0.0000000001
 

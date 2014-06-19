@@ -1,4 +1,4 @@
-## `prepare_functional_phenotype.R' contains R scripts to show 1) reading DNase-seq data from files in hdf5, 2) reading mappability information from file in hdf5, 3) masking 5bp surrounding any SNP (i.e., the SNP position and 2bp on either side) to eliminate biases stemming from DNase I seqeucne preference, and 4) combining DNase-seq data from two strands while taking mappability into account as we did in Shim and Stephens (2014).
+## `prepare_functional_phenotype.R' contains R scripts to show 1) reading DNase-seq data from files in hdf5, 2) reading mappability information from file in hdf5, 3) masking 5bp surrounding any SNP (i.e., the SNP position and 2bp on either side) to eliminate biases stemming from DNase I sequence preference, and 4) combining DNase-seq data from two strands while taking mappability into account as we did in Shim and Stephens (2014).
 ##
 ##
 ## Copyright (C) 2014 Heejung Shim
@@ -82,13 +82,13 @@ dim(DNase.hdf5)
 map.hdf5 = matrix(data=NA, nr = 1, nc = numBPs*2)
 map.hdf5[1, 1:numBPs] = as.matrix(get.counts.h5(path.mapp, chrIX, locus.start+1, locus.end+1))
 map.hdf5[1, ((1:numBPs)+numBPs)] = as.matrix(get.counts.h5(path.mapp, chrIX, locus.start-20+2, locus.end-20+2))
-dim(map.hdf5) # 1 by 2048; the first (second) 1024 rows indicates mappability from +(-) strand in each positions; `1' indicates uniquly mappabile base.
+dim(map.hdf5) # 1 by 2048; the first (second) 1024 rows indicates mappability from +(-) strand in each positions; `1' indicates uniquely mappable base.
 map.dat = map.hdf5
 
 
 ###############################################################################
 ##  3. Mask 5bp surrounding any SNP (i.e., the SNP position and 2bp on either side)
-##  to eliminate biases stemming from DNase I seqeucne preference
+##  to eliminate biases stemming from DNase I sequence preference
 ##  (see the supplementary material of Degner et al 2012 for details). 
 ###############################################################################
 

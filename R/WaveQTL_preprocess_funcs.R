@@ -259,7 +259,7 @@ generate_Group <- function(numWCs, group.scale=NULL){
 ##' \code{\link{wavethresh}}; See their manual for details.
 ##' @param family default="DaubExPhase"; argument to the function \code{\link{wd}}
 ##' in the R package \code{\link{wavethresh}}; See their manual for details.
-##' @param no.QT TRUE or FALSE; default=FALSE; if no.QT == FALSE, perform qunantile transform during normalization (often for testing); if no.QT == TRUE, just correct WCs for covariates (often for effect size estimation).
+##' @param no.QT TRUE or FALSE; default=FALSE; if no.QT == FALSE, perform quantile transform during normalization (often for testing); if no.QT == TRUE, just correct WCs for covariates (often for effect size estimation).
 ##'
 ##' 
 ##' @return WCs a matrix with N (# of samples) by T (# of bps in a region); n-th row contains WCs
