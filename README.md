@@ -40,7 +40,7 @@ User manual is in the `WaveQTL/doc/manual` directory.
 
 ## dsQTLs and analysis in Shim and Stephens (2014)
 
-1. The main manuscript and supplementary materials of[Shim and Stephens (2014)](http://arxiv.org/abs/1307.7203) are in the `WaveQTL/doc/paper` directory.
+1. The main manuscript and supplementary materials of [Shim and Stephens (2014)](http://arxiv.org/abs/1307.7203) are in the `WaveQTL/doc/paper` directory.
 2. Information on dsQTLs identified by our analysis in [Shim and Stephens (2014)](http://arxiv.org/abs/1307.7203) is in `WaveQTL/Shim_2014/` directory.
 3. Information on the top 1% of 1024bp sites with the highest DNase I sensitivity, analyzed in [Shim and Stephens (2014)](http://arxiv.org/abs/1307.7203), is in `WaveQTL/Shim_2014/` directory.
 4. In the user manual, we describe how to perform an analysis in [Shim and Stephens (2014)](http://arxiv.org/abs/1307.7203) for a given site, starting from reading DNase-seq data at the site on 70 individuals from raw data files (downloaded from [http://eqtl.uchicago.edu/dsQTL_data/](http://eqtl.uchicago.edu/dsQTL_data/)) to plotting estimated effect sizes in the data space as shown in the paper. 
