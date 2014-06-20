@@ -38,11 +38,11 @@ Then, binary executable file will be created in the `WaveQTL/` directory.
 
 User manual is in the `WaveQTL/doc/` directory.
 
-## dsQTLs and analysis in [Shim and Stephens (2014)](http://arxiv.org/abs/1307.7203)
+## dsQTLs and analysis in Shim and Stephens (2014)
 
 1. Information on dsQTLs identified by our analysis in [Shim and Stephens (2014)](http://arxiv.org/abs/1307.7203) is in `WaveQTL/Shim_2014/` directory.
 2. Information on the top 1% of 1024bp sites with the highest DNase I sensitivity, analyzed in [Shim and Stephens (2014)](http://arxiv.org/abs/1307.7203), is in `WaveQTL/Shim_2014/` directory.
-2. In the user manual, we describe how to perform an analysis in Shim and Stephens (2014) for a given site, starting from reading DNase-seq data at the site on 70 individuals from raw data files (downloaded from [http://eqtl.uchicago.edu/dsQTL_data/](http://eqtl.uchicago.edu/dsQTL_data/)) to plotting estimated effect sizes in the data space as shown in the paper. 
+2. In the user manual, we describe how to perform an analysis in [Shim and Stephens (2014)](http://arxiv.org/abs/1307.7203) for a given site, starting from reading DNase-seq data at the site on 70 individuals from raw data files (downloaded from [http://eqtl.uchicago.edu/dsQTL_data/](http://eqtl.uchicago.edu/dsQTL_data/)) to plotting estimated effect sizes in the data space as shown in the paper. 
 
 ## Bug reports
 
