@@ -1,0 +1,464 @@
+%\documentclass[a4paper]{article}
+\documentclass[11pt]{article}
+
+
+%% Packages.
+\usepackage{framed}
+\usepackage{color}
+\usepackage{amsmath,amssymb,amsfonts,epsfig}
+\usepackage{verbatim}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{url}
+\usepackage{soul} % for highlighting
+\usepackage[sort&compress]{natbib}
+\usepackage{ifthen}
+\usepackage{xkeyval}
+\usepackage{xfor}
+\usepackage{amsgen}
+\usepackage{etoolbox}
+\usepackage{epstopdf}
+\usepackage{hyperref} % problem with toc
+\usepackage[toc,sort=use]{glossaries} % for list of symbols. Must be AFTER hyperref
+
+
+%\usepackage[sort&compress]{natbib}
+%\usepackage{chngcntr}
+
+
+%% My commands.
+
+
+% Text layout
+\topmargin 0.0cm
+\oddsidemargin 0.5cm
+\evensidemargin 0.5cm
+\textwidth 16cm
+\textheight 21cm
+
+
+\bibliographystyle{plain}
+
+\date{\today}
+
+\renewcommand{\baselinestretch}{1.2}
+
+
+\newcommand{\vr}{{\textbf r}}
+\newcommand{\vw}{{\textbf w}}
+\newcommand{\vv}{{\textbf v}}
+\newcommand{\va}{{\textbf a}}
+\newcommand{\vc}{{\textbf c}}
+\newcommand{\vg}{{\textbf g}}
+\newcommand{\vt}{{\textbf t}}
+\newcommand{\vp}{{\textbf p}}
+\newcommand{\vx}{{\textbf x}}
+\newcommand{\vy}{{\textbf y}}
+\newcommand{\vs}{{\textbf s}}
+\newcommand{\vz}{{\textbf z}}
+
+
+
+
+%\newcommand{\sigest}{\ensuremath{\tilde{\sigma}}}
+\newcommand{\sigest}{{\tilde{\sigma}}}
+
+
+\newcommand{\bm}[1]{\mbox{\boldmath{$#1$}}}
+\newcommand{\bx}{\textbf{x}}
+\newcommand{\by}{\textbf{y}}
+\newcommand{\bz}{\textbf{z}}
+\newcommand{\reals}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\| #1 \right\|}
+
+\newcommand{\readlen}{\ensuremath{L}}
+
+\renewcommand{\Pr}{\mathsf{P}}
+\newcommand{\prob}[1]{\Pr\left(#1\right)}
+\newcommand{\given}{\mid}
+\newcommand{\me}{\mathrm{e}} % use for base of the natural logarithm
+\newcommand{\md}{\mathrm{d}} % use for base of the natural logarithm
+\newcommand{\var}{\mathrm{Var}}
+\newcommand{\mean}{\mathrm{E}}
+\def\logten{\log_{10}}
+\def\BFav{{\rm BF}_\text{av}}
+\def\BFuni{{\rm BF}_\text{uni}}
+\def\BFldl{{\rm BF}_\text{ldl}}
+\def\BF{\rm BF}
+\def\ABF{\rm ABF}
+\def\BFall{{\rm BF}_\text{all}}
+
+\newcommand{\Normal}{\mathcal{N}}
+
+
+\def\qed{\hfill \vrule height1.3ex width1.2ex depth-0.1ex}
+
+
+\glossarystyle{long3col} % listdotted set style of glossaries
+\renewcommand{\glossaryname}{List of Symbols}
+
+
+
+
+\begin{document}
+
+\title{WaveQTL}
+
+\maketitle
+
+
+\section{Overview}
+The {\tt WaveQTL} software implements a wavelet-based approach for genetic association analysis of functional phenotypes (e.g. sequence data arising from high-throughput sequencing assays) described in \cite{Shim2014}. A key factor that distinguishes a wavelet-based approach from typical association analysis is to better exploit high-resolution measurements provided by high-throughput sequencing assays (see \cite{Shim2014} for motivations). The implemented wavelet-based methods aim to  
+\begin{itemize}
+\item test for genetic association of functional phenotype;
+\item provide explanations for observed associations such as which parts and features of the data are driving the association;
+\item make applications to large-scale genetic association analyses computationally tractable.
+\end{itemize}
+Although wavelet methods were motivated primarily by genetic association studies for high-throughput sequencing data, they could also test for association between functional data and
+other covariates, either continuous or discrete. For example, in a genomics context, it could be used to detect differences in gene expression (from RNA-seq data) or TF binding (from ChIP-seq data) measured on two groups (e.g. treatment conditions or cell types). Or it could be used to associate a functional phenotype, such as chromatin accessibility, with a continuous covariate, such as ``overall" expression of a gene. It could also be used for genome-wide association studies of functional phenotypes unrelated to sequencing.
+
+In this manual, we describe how to preprocess functional phenotypic data and produce inputs required by {\tt WaveQTL} in Section~\ref{preprocessing}, how to perform an analysis using {\tt WaveQTL}, with description of input file formats and output files, in Section~\ref{WaveQTL}, and how to construct effect size estimate in data space from {\tt WaveQTL} outputs in Section~\ref{EffectSizeEstimate}. As an example data, we use dsQTL data shown in Figure 2 of \cite{Shim2014} containing DNase-seq data at chr17.10160989.10162012 and genotypes at 24 SNPs in 2kb cis-candidate region on 70 individuals. This dsQTL data ({\tt chr17.10160989.10162012.pheno.dat} and {\tt chr17.10160989.10162012.2kb.cis.geno}) are provided in {\tt WaveQTL/data/dsQTL/} directory, but in Section~\ref{Replicate.preprocss} we provide instructions on how to produce those two files from raw data files downloaded from \url{http://eqtl.uchicago.edu/dsQTL_data/} (e.g., genotype data and DNase-seq data in the entire genome). For other sites, one can use the same procedure to generate genotype data and phenotype data from the downloaded raw data files, and then preprocess phenotype data, perform analysis, and construct effect size estimates in data space as described in Sections~\ref{preprocessing},~\ref{WaveQTL},~\ref{EffectSizeEstimate}.
+
+\section{How to cite WaveQTL}
+Heejung Shim and Matthew Stephens (2014). Wavelet-based genetic association analysis of functional phenotypes arising from high-throughput sequencing assays. arXiv. 1307.7203. 
+
+
+\section{Functional phenotypic data preprocessing}\label{preprocessing} 
+The {\tt WaveQTL} software takes normalized wavelet coefficients (WCs) as an input phenotype. We provide multiple R functions in {\tt R/WaveQTL\_preprocess\_funcs.R} that preprocess functional phenotypic data as described in \cite{Shim2014} and produce inputs required by {\tt WaveQTL}. Here, we describe how to use the main function {\tt WaveQTL\_preprocess} using dsQTL data from \cite{Shim2014} as an example. 
+{\tt R/WaveQTL\_preprocess\_example.R} contains R scripts used in this section. For details of preprocessing procedure, please read our paper \cite{Shim2014}, and for details of the function {\tt WaveQTL\_preprocess} and other functions called by {\tt WaveQTL\_preprocess}, see the description of functions in {\tt R/WaveQTL\_preprocess\_funcs.R}. 
+
+The main function {\tt WaveQTL\_preprocess} takes functional data (``Data") and optionally library read depth (``library.read.depth"), a list of covariates (``Covariates"), minimum read count for filtering (``meanR.thresh") as an input. If ``library.read.depth" is provided, the function standardizes the functional data by the library read depth to account for different library read depths across individuals. Then, the function decomposes the (standardized) functional data into WCs using a {\tt wavethresh} R package and normalizes the WCs. If ``Covariates" are provided, the function corrects the WCs for the Covariates during the normalization. See the description of the function {\tt Normalize.WCs} in {\tt WaveQTL\_preprocess\_funcs.R} for details of normalization. Users can specify which type of wavelet transform should be applied by using ``filter.number" and ``family" in input arguments. They are arguments to the function {\tt wd} in the R package {\tt wavethresh} (for details, see their manual \url{http://cran.r-project.org/web/packages/wavethresh/wavethresh.pdf}). For now, the function doesn't allow users to specify the level of wavelet decomposition and the function uses the maximum level decomposition. In addition to wavelet transform, this function filters out some WCs that are computed based on low counts. The function considers WCs to have low count if the total counts used in their computation are less than or equal to ``meanR.thresh" per individual on average. Finally, the function {\tt WaveQTL\_preprocess} returns quantile transformed (standardized and covariates corrected) WCs (``WCs") and filtering status for each WCs (``filtered.WCs") as an output.
+
+We start with making a directory to save output from the function {\tt WaveQTL\_preprocess}.
+\begin{verbatim}
+cd WaveQTL
+mkdir test
+cd test
+mkdir dsQTL
+\end{verbatim}
+Now open {\tt R} session, set working directory to {\tt WaveQTL/R} and read functions \\in {\tt WaveQTL\_preprocess\_funcs.R}.
+\begin{verbatim}
+> setwd("~/WaveQTL/R")
+> source("WaveQTL_preprocess_funcs.R")
+\end{verbatim}
+Then, set a path to the directory containing dsQTL data that is shown in Figure 2 of \cite{Shim2014} and read data on 70 individuals.
+\begin{verbatim}
+> data.path = "../data/dsQTL/"
+# read functional phenotypic data 
+> pheno.dat = as.matrix(read.table(paste0(data.path, 
++ "chr17.10160989.10162012.pheno.dat")))
+> dim(pheno.dat)
+[1] 70 1024
+# read library read depth
+> library.read.depth = scan(paste0(data.path, "library.read.depth.dat"))
+> length(library.read.depth)
+[1] 70
+# read Covariates
+> Covariates = as.matrix(read.table(paste0(data.path, "PC4.dat")))
+> dim(Covariates)
+[1] 70 4
+\end{verbatim}
+Each row of {\tt pheno.dat} contains functional phenotypic data for each individual on a region of 1024bp (B = 1024). For example, this functional phenotypic data can be the number of reads starting at each location of the region. In our dsQTL analysis of \cite{Shim2014}, we obtained functional phenotypic data after applying multiple procedures into read counts to avoid potential biases. We describe how to replicate those procedures in Section~\ref{Replicate.preprocss}. Each element of {\tt library.read.depth} contains library read depth for each individual. {\tt Covariates} contains multiple covariates to be corrected for (here, four principal components we used to control for confounding factors in our dsQTL analysis of \cite{Shim2014}). 
+
+We set two to ``meanR.thresh" for filtering of low count WCs and run {\tt WaveQTL\_preprocess}. Here, we use default values for ``filter.number" and ``family" arguments, which corresponds to the Haar DWT.
+\begin{verbatim}
+> meanR.thresh = 2
+> res = WaveQTL_preprocess(Data = pheno.dat, library.read.depth = 
++ library.read.depth, Covariates = Covariates, meanR.thresh = meanR.thresh)
+> str(res)
+List of 2
+ $ WCs         : num [1:70, 1:1024] -1.415 0.126 0.347 -1.323 0.674 ...
+ $ filtered.WCs: num [1:1024] 1 1 1 1 1 1 1 1 0 0 ...
+\end{verbatim}
+{\tt WaveQTL\_preprocess} returns a list of {\tt WCs} and {\tt filtered.WCs}. {\tt WCs} is a matrix of the number of individuals (70) by the number of WCs (1024). Each row contains (standardized, covariates corrected, and quantile transformed) WCs for each individual. WCs are ordered from low resolution WC to high resolution WC. For example, with a Haar wavelet transform, the first column contains WC (precisely speaking, scaling coefficient) that corresponds to sum of data in the region. The second column contains WC that contrasts the data in the first half vs second half of the region. The last (1024) column contains WC that contrasts the data in the 1023-th base vs 1024-th base. {\tt filtered.WCs}, a vector of length 1024, contains indicators to show whether $t$-th WC in output {\tt WCs} is filtered (0) or not (1) due to low count. 
+
+Finally, set a path to the output directory we created at the beginning and save output as files. 
+\begin{verbatim}
+> output.path = "../test/dsQTL/"
+> write.table(res$WCs, file= paste0(output.path, "WCs.txt"), row.names=FALSE, 
++ col.names = FALSE, quote=FALSE)
+> cat(res$filtered.WCs, file = paste0(output.path, "use.txt"))
+\end{verbatim}
+
+\section{WaveQTL}\label{WaveQTL} 
+
+\subsection{Input file format for WaveQTL}
+{\tt WaveQTL} requires two input files containing genotypes and phenotype (WCs), and optionally two input files containing filtering status of WCs and information on which WCs share the same hyper parameter $\pi$ (see \cite{Shim2014} for definition of $\pi$). 
+
+\subsubsection{Genotype file format}
+{\tt WaveQTL} takes genotype file in the BIMBAM format (\url{http://stephenslab.uchicago.edu/software.html}) \cite{Servin2007}. To see details of the different BIMBAM genotype file formats and option for each format, please read the BIMBAM manual (\url{http://www.haplotype.org/download/bimbam-manual.pdf}). Among the BIMBAM genotype file formats, a ``mean genotype file format" is particularly useful for imputed genotypes as well as for other covariates other than SNPs (e.g., control/treatment group indicator). The first column of the mean genotype file is the SNP id and the second and third columns are allele types with minor allele first. The remaining columns contain the (posterior) mean genotypes (numbers between 0 and 2) of each individual. An example of mean genotype file of 24 SNPs and 70 individuals are in {\tt WaveQTL/data/dsQTL/chr17.10160989.10162012.2kb.cis.geno}. The first three rows and the first 23 columns in {\tt chr17.10160989.10162012.2kb.cis.geno} are:
+\begin{verbatim}
+chr17.10159002 G A 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0.543 0 0.058 0
+chr17.10159236 T C 0 0 1 0 1 0 1 1 0 0 0 0 0 0 0 0 0.002 0 0.003 0 
+chr17.10160091 C T 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 2 
+\end{verbatim}
+
+One can use the following bash command (in one line) to generate BIMBAM mean genotype file from IMPUTE genotype file (\url{http://www.stats.ox.ac.uk/~marchini/software/gwas/file_format.html}) \cite{Howie2009}:
+\begin{verbatim}
+cat [impute filename] | awk -v s=[number of samples/individuals]
+'{ printf $2 "," $4 "," $5; for(i=1; i<=s; i++) printf "," $(i*3+3)*2+$(i*3+4); 
+printf "\n" }'
+> [bimbam filename]
+\end{verbatim}
+Notice that one may need to manually input the two quote symbols ` . Depending on the terminal,
+a direct copy/paste of the above line may result in \-bash: syntax error near unexpected token `('
+" errors. This paragraph is copied from the GEMMA manual (\url{http://www.xzlab.org/software/GEMMAmanual.pdf})
+
+{\tt WaveQTL} can take a non-genotype covariate (e.g., control/treatment group indicator) for association analysis. The input file can be prepared in the same format as mean genotype file described above, with arbitrary SNP id and allele coding using ACGT in the first three columns. User should use the ``-notsnp" option to disable the minor allele frequency cutoff and to use any numerical values as covariates.
+
+\subsubsection{Phenotype file format}
+The phenotype input file contains multiple lines, each of with corresponds to each individuals in the same order as in the mean genotype file, and multiple columns, each of which corresponds to each WCs. The phenotype input file can be prepared from functional phenotypic data by using the function {\tt WaveQTL\_preprocess}. This function lists (standardized, covariates corrected, and quantile transformed) WCs in the order from low resolution WC to high resolution WC (see Section~\ref{preprocessing} for details). The WCs can be ordered in different ways, but two additional input files containing filtering status of the WCs and information on which WCs share the same hyper parameter $\pi$ should be prepared accordingly (see Section~\ref{filtering status file} and Section~\ref{group WCs file}). The procedure described in Section~\ref{preprocessing} creates an example of phenotype file {\tt WaveQTL/test/dsQTL/WCs.txt} of 1024 WCs on 70 individuals. The first three rows and the first six columns in {\tt WaveQTL/test/dsQTL/WCs.txt} are:
+\begin{verbatim}
+-1.4147464 -1.8027431 -0.97699540 2.4499977 -0.7673774 -1.167875  
+ 0.1256613 -1.4147464 -0.08964235 0.4241882  1.5197595  0.920823  
+ 0.3470265 -0.6744898 -0.27188001 1.0364334 -0.4241882 -0.816375 
+\end{verbatim}
+
+\subsubsection{Filtering status file format (optional)}\label{filtering status file}
+One can filter out WCs from analyses by providing ``filtering status file" with ``-u" option. The filtering status file contains one line with multiple columns (the same number of columns in phenotype file), each of which indicates whether the corresponding WC in the phenotype file is filtered (0) or not (1). One can use the function {\tt WaveQTL\_preprocess} to generate filtering status of WCs based on low count threshold. The procedure described in Section~\ref{preprocessing} produces an example of the filtering status file {\tt WaveQTL/test/dsQTL/use.txt} of 1024 WCs by using low count threshold of two. The first ten columns in {\tt WaveQTL/test/dsQTL/use.txt} are:
+\begin{verbatim}
+1 1 1 1 1 1 1 1 0 0
+\end{verbatim}
+where the 7th and 8th WCs are filtered out in analysis. By default, {\tt WaveQTL} includes all WCs in analysis. 
+
+\subsubsection{Group of WCs file format (optional)}\label{group WCs file}
+One can provide information on which WCs share the same hyperparameter $\pi$ in the model described in \cite{Shim2014} with ``-group" option. A group of WCs sharing the same $\pi$ should be located next to each other in the phenotype file. The group of WCs file contains one line with multiple positive numbers, each of which indicates the start position of each group of WCs in the phenotype file. Suppose the group of WCs file contains 
+\begin{verbatim}
+1 2 9 17
+\end{verbatim}
+and the phenotype file contains 1024 columns. Then, {\tt WaveQTL} partitions 1024 WCs into four groups. The first group has one WC that is in the first column of the phenotype file.
+The second group has 7 WCs that locate from the second column to 8th column. WCs from 9th to 16th columns are in the third group and WCs from 17th to the end (1024th) columns are in the fourth group.
+
+By default {\tt WaveQTL} assumes that WCs in the phenotype file are ordered from low resolution WC to high resolution WC, and that WCs in the same scale share the same $\pi$, which is equivalent to providing the group of WCs file as follows for 1024 WCs. 
+\begin{verbatim}
+1 2 3 5 9 17 33 65 129 257 513
+\end{verbatim}
+
+To group WCs in multiple scales together (only for consecutive scales), one can use the function {\tt generate\_Group} we provided in {\tt R/WaveQTL\_preprocess\_funcs.R} (see its description in the file for details). 
+\begin{verbatim}
+> setwd("~/WaveQTL/R")
+> source("WaveQTL_preprocess_funcs.R")
+> group.info = generate_Group(numWCs = 1024, group.scale = c(0, 1, 4, 5))
+> group.info
+[1]  1  2  9 17
+\end{verbatim}
+In this example, {\tt generate\_Group} generates ``the group of WCs file" to partition 1024 WCs into four groups: the first group contains WC in the ``0-th" scale (precisely speaking scaling coefficient); the second group consists of WCs from the ``1st" (coarsest) to 3rd scales; WCs in the ``4th" scale are in the third group and WCs from the ``5th" to the last (10th) scales are in the fourth group. 
+
+
+
+\subsection{Performing an analysis using WaveQTL}
+If you followed the procedure in Section~\ref{preprocessing}, you can find {\tt WCs.txt} and {\tt use.txt} files in {\tt WaveQTL/test/dsQTL} directory. Let's go to the {\tt WaveQTL/test/dsQTL} directory.
+\begin{verbatim}
+cd ~/WaveQTL/test/dsQTL
+\end{verbatim}
+\subsubsection{Testing the null hypothesis $H_0$: functional phenotype at a given site is unassociated with all near-by SNPs}
+To test the null hypothesis, $H_0$: DNase-seq data at the site is unassociated with all near-by SNPs (we took ``near-by" to mean ``within 2kb of the
+site" in \cite{Shim2014}), one can run {\tt WaveQTL} with the option {\tt -fph 3}, using for example
+\begin{verbatim}
+../../WaveQTL -gmode 1 -g ../../data/dsQTL/chr17.10160989.10162012.2kb.cis.geno 
+-p WCs.txt -u use.txt -o test -f 1024 -numPerm 30 -fph 3
+\end{verbatim}
+The genotype file ({\tt ../../data/dsQTL/chr17.10160989.10162012.2kb.cis.geno}) should be provided with the option {\tt -g}. For the mean genotype file format, {\tt -gmode 1} is required in addition to {\tt -g} (please read the BIMBAM manual \url{http://www.haplotype.org/download/bimbam-manual.pdf}).  The phenotype file ({\tt WCs.txt}) should be provided with the option {\tt -p}. The name of output files ({\tt test}) is specified using the option {\tt -o} and the number of WCs ({\tt 1024}) is specified using the option {\tt -f}. Optionally, one can provide filtering status file ({\tt use.txt}) with the option {\tt -u}. The {\tt -numPerm} option can be used to specify the maximum number of permutations (30 in this example, 10000 by default). Please read the supplementary material of \cite{Shim2014} to see details of our permutation procedure. 
+
+The command with {\tt -fph 3} generates five output files inside an output folder in the current directory ({\tt WaveQTL/test/dsQTL}). The {\tt test.fph.pval.txt} file should be checked first to see if there is a strong evidence for association.
+\begin{verbatim}
+chr17.10161485
+30
+0
++0.03226
+\end{verbatim}
+The first line shows SNP id that is most strongly associated with DNase-seq data at the site. The second and the third lines contain the number of permutations performed and the number of permuted data sets with test statistic greater than or equal to the observed test statistic when the permutation procedure stops, respectively (see the supplementary material of \cite{Shim2014} for details of those numbers). Finally, the fourth line shows p-value obtained by permutation.
+
+The rest four files allow for more detailed investigation of association with each of all near-by SNPs. Thus, once users believe there is an evidence for association in the site, they could look at those files for further investigation. The {\tt test.fph.logLR.txt} file contains SNP id in the first column, log likelihood ratio test statistic for each SNP ($\log\hat\Lambda(y, g)$ in \cite{Shim2014}) in the second column, and $\logten$ Bayes Factor for each WCs ($\BF_{sl}$ in \cite{Shim2014}) in the remaining columns. 
+The first three rows and the first six columns in {\tt WaveQTL/test/dsQTL/output/test.fph.logLR.txt} are:
+\begin{verbatim}
+chr17.10159002 +0.33495 +0.03456 +0.14826 -0.00001 -0.00676
+chr17.10159236 +6.63939 +0.43781 -0.05384 +0.43085 +0.09587
+chr17.10160091 +6.15850 +0.60985 -0.03028 +0.30198 +0.10745
+\end{verbatim}
+
+The {\tt test.fph.pi.txt} file contains the maximum likelihood estimate $\hat\pi$ for each SNP (see \cite{Shim2014} for details of definition). By default, {\tt WaveQTL} partitions 1024 WCs into 11 groups, so {\tt test.fph.pi.txt} file have 12 columns with SNP id in the first column and $\hat \pi_s$ for each scale $s$ in the remaining 11 columns (from coarse to fine scales). The first three rows and the first six columns in \\{\tt WaveQTL/test/dsQTL/output/test.fph.pi.txt} are:
+\begin{verbatim} 
+chr17.10159002 +0.92179 +0.99699 +0.49610 +0.49200 +0.50032 
+chr17.10159236 +0.99989 +0.02672 +0.99951 +0.99917 +0.97613 
+chr17.10160091 +0.99999 +0.10329 +0.99926 +0.99823 +0.97052 
+\end{verbatim}
+ 
+ The {\tt test.fph.mean.txt} and {\tt test.fph.var.txt} files contain SNP id in the first column and posterior mean ({\tt test.fph.mean.txt} ) and variance ({\tt test.fph.var.txt}) of effect sizes ($\beta_{sl}$ in \cite{Shim2014}) of each SNP on each WCs in the remaining columns. 
+The first three rows and the first six columns in {\tt WaveQTL/test/dsQTL/output/test.fph.mean.txt} are:
+\begin{verbatim} 
+chr17.10159002 -0.108228 -0.213471 -0.0404823 0.0363575 -0.0118591 
+chr17.10159236 -0.306942 0.00137141 -0.30402 0.148124 -0.0474979   
+chr17.10160091 -0.399600 -0.00697998 -0.262387 0.15933 -0.0459835 
+\end{verbatim} 
+The first three rows and the first six columns in {\tt WaveQTL/test/dsQTL/output/test.fph.var.txt} are:
+\begin{verbatim} 
+chr17.10159002 0.00993409 0.0153632 0.00579517 0.00533707 0.0034537
+chr17.10159236 0.0129849 0.000173951 0.0128463 0.00619634 0.00393106
+chr17.10160091 0.0201208 0.000920335 0.012013 0.00734072 0.0043809
+\end{verbatim} 
+
+\subsubsection{testing the null hypothesis $H_0$: functional phenotype at a given site is unassociated with a single SNP}
+To test for association with each of near-by SNPs, {\tt WaveQTL} performs permutation and provides p-value for each of near-by SNPs, which can be accomplished with the option {\tt -fph 2}, using for example
+\begin{verbatim}
+../../WaveQTL -gmode 1 -g ../../data/dsQTL/chr17.10160989.10162012.2kb.cis.geno 
+-p WCs.txt -u use.txt -o test2 -f 1024 -numPerm 30 -fph 2
+\end{verbatim}
+The command with {\tt -fph 2} generates five output files inside an output folder in the current directory ({\tt WaveQTL/test/dsQTL}). The {\tt test2.fph.pval.txt} file contains more information while the other four files are identical to those generated by the command with {\tt -fph 1}. The {\tt test2.fph.pval.txt} file contains multiple columns each of which corresponds to each of near-by SNPs. The first five columns in {\tt WaveQTL/test/dsQTL/output/test2.fph.pval.txt} are:
+\begin{verbatim}
+chr17.10159002 chr17.10159236 chr17.10160091 chr17.10160195 chr17.10160499 
+25 30 30 30 30  
+10 1 0 0 3 
+0.41097 +0.06452 +0.03226 +0.03226 +0.12903
+\end{verbatim}
+The fist line contains SNP id, and the second and third lines contains the number of permutations performed and the number of permuted data sets with test statistic greater than or equal to the observed test statistic when the permutation stops, for each SNP, respectively. Finally, the fourth line shows p-value for each SNP.
+
+\subsubsection{running WaveQTL without permutation}
+One can run {\tt WaveQTL} without permutation using the command with the option {\tt -fph 1} for example
+\begin{verbatim}
+../../WaveQTL -gmode 1 -g ../../data/dsQTL/chr17.10160989.10162012.2kb.cis.geno 
+-p WCs.txt -u use.txt -o test1 -f 1024 -fph 1
+\end{verbatim}
+The command with the option {\tt -fph 1} generate four output files ({\tt test1.fph.logLR.txt}, \\{\tt test1.fph.pi.txt}, {\tt test1.fph.mean.txt}, and {\tt test1.fph.var.txt}) that are identical to those files produced by the command with the option {\tt -fph 2} or {\tt -fph 3}.
+ 
+
+\section{Estimation of effect size in the data space}\label{EffectSizeEstimate} 
+We tested for genetic association by using quantile transformed WCs to make tests robust to deviations from normality, but this quantile transform can make estimated effect sizes in the data space more difficult to interpret. Therefore, once one identifies sites with strong association by permutation with the option {\tt -fph 2} or {\tt -fph 3}, we advise rerunning {\tt WaveQTL} on WCs without quantile transform using the option {\tt -fph 1} to estimate effect sizes in the data space. One can obtain (standardized and covariates  corrected) WCs from functional phenotype data using the function {\tt WaveQTL\_preprocess} with {\tt no.QT = TRUE} option. 
+\begin{verbatim}
+> setwd("~/WaveQTL/R")
+> source("WaveQTL_preprocess_funcs.R")
+> data.path = "../data/dsQTL/"
+> pheno.dat = as.matrix(read.table(paste0(data.path, 
++ "chr17.10160989.10162012.pheno.dat")))
+> library.read.depth = scan(paste0(data.path, "library.read.depth.dat"))
+> Covariates = as.matrix(read.table(paste0(data.path, "PC4.dat")))
+> set.seed(1)
+> meanR.thresh = 2
+> res.noQT = WaveQTL_preprocess(Data = pheno.dat, library.read.depth =
++ library.read.depth , Covariates = Covariates, meanR.thresh = meanR.thresh, no.QT = TRUE)
+> output.path = "../test/dsQTL/"
+> write.table(res.noQT$WCs, file= paste0(output.path, "WCs.no.QT.txt"), row.names=FALSE, 
++ col.names = FALSE, quote=FALSE)
+\end{verbatim}
+Then, one can run {\tt WaveQTL} on these only standardized and covariates corrected WCs using the option {\tt -fph 1}.
+\begin{verbatim}
+cd ~/WaveQTL/test/dsQTL
+../../WaveQTL -gmode 1 -g ../../data/dsQTL/chr17.10160989.10162012.2kb.cis.geno 
+-p WCs.no.QT.txt -u use.txt -o test.no.QT -f 1024 -fph 1
+\end{verbatim}
+Now posterior mean and variance of effect sizes on the WCs are in {\tt test.no.QT.fph.mean.txt} and {\tt test.no.QT.fph.var.txt} files, and posterior mean and variance of effect sizes in data space can be obtained by transforming them back to the data space as follows. R scripts used here are in {\tt R/get\_effectSizeinDataSpace.R}.
+\begin{verbatim}
+> setwd("~/WaveQTL/R")
+## Read Haar DWT matrix 
+> Wmat_1024 = read.table("../data/DWT/Wmat_1024",as.is = TRUE)
+> W2mat_1024 = Wmat_1024*Wmat_1024
+\end{verbatim}
+We provide the Haar Discrete Wavelet Transform (DWT) matrix on 512, 1024, and 2048 bp in {\tt WaveQTL/data/DWT/}. Please read Section~\ref{DWT} to see how to produce those or other DWT matrices.  
+Let's set path to files containing posterior mean and variance of effect sizes in wavelet space. We focus on 11th SNP in genotype file that is most strongly associated with DNase-seq data at the site (i.e., it has largest log likelihood ratio). 
+\begin{verbatim}
+beta_mean_path= "../test/dsQTL/output/test.no.QT.fph.mean.txt"
+beta_var_path = "../test/dsQTL/output/test.no.QT.fph.var.txt"
+## We'll look at effect size of 11th SNP in genotype file
+sel_geno_IX = 11
+\end{verbatim}
+Read posterior mean in wavelet space and transform them back to the data space, yielding 1024 posterior mean at each locations.  
+\begin{verbatim}
+beta_mean = as.numeric(read.table(beta_mean_path)[sel_geno_IX,2:1025])
+beta_dataS = as.vector(-matrix(data=beta_mean, nr = 1, nc = 1024)%*%as.matrix(Wmat_1024))
+length(beta_dataS)
+[1] 1024
+beta_dataS[1:6]
+[1] 1.352119e-11 1.352119e-11 1.352119e-11 1.352119e-11 1.352119e-11
+[6] 1.352119e-11
+\end{verbatim}
+Read posterior variance in wavelet space, transform them back to the data space, and get standard deviation at each locations.  
+\begin{verbatim}
+beta_var = as.numeric(read.table(beta_var_path)[sel_geno_IX,2:1025])
+beta_var_dataS = as.vector(matrix(data=beta_var, nr=1, nc=1024)%*%as.matrix(W2mat_1024))
+beta_sd_dataS = sqrt(beta_var_dataS)
+length(beta_sd_dataS)
+[1] 1024
+beta_sd_dataS[1:6]
+[1] 3.482833e-11 3.482833e-11 3.482833e-11 3.482833e-11 3.482833e-11
+[6] 3.482833e-11
+\end{verbatim}
+You can plot effect sizes in data space (see {\tt R/get\_effectSizeinDataSpace.R} for R script to produce this figure).
+\begin{figure}
+\center
+\includegraphics[scale=0.8]{fig/effectSize.pdf}
+\caption[]{\label{effectSize:fig} {\bf Estimated effect sizes in data space} 
+}
+\end{figure}
+
+
+\subsection{Generation of DWT matrix}\label{DWT}
+We describe how to produce the Haar DWT matrices on 512, 1024, 2048 bp, provided in {\tt WaveQTL/data/DWT/}, and other DWT matrix. 
+R scripts used here are in {\tt R/get\_Wmat.R}.
+\begin{verbatim}
+> setwd("~/WaveQTL/R")
+> source("WaveQTL_preprocess_funcs.R")
+## Haar DWT for region of 512 bp
+> InputD = diag(512)
+> res = FWT(InputD)
+> Wmat_512 = t(res$WCs)
+## Haar DWT for region of 1024 bp
+> InputD = diag(1024)
+> res = FWT(InputD)
+> Wmat_1024 = t(res$WCs)
+## Haar DWT for region of 2048 bp
+> InputD = diag(2048)
+> res = FWT(InputD)
+> Wmat_2048 = t(res$WCs)
+## for different DWT for region of 512 bp
+> InputD = diag(512)
+> res = FWT(InputD, filter.number = 4, family ="DaubExPhase")
+> Wmat_512.v2 = t(res$WCs)
+\end{verbatim}
+The function {\tt FWT} uses the Haar DWT with {\tt filter.number}=1 and {\tt family}=``DaubExPhase" by default. Other DWT matrices can be produced by using {\tt filter.number} and {\tt family} in input arguments. They are arguments to the function {\tt wd} in the R package {\tt wavethresh} (for details, see their manual \url{http://cran.r-project.org/web/packages/wavethresh/wavethresh.pdf}). 
+
+
+
+
+\section{Preparing genotype and functional phenotypic data for dsQTL analysis in  \cite{Shim2014}}\label{Replicate.preprocss}
+You need to download genotype files (mean genotype format), DNase-seq data (as in hdf5 format), and mappability information (as in hdf5 format) from \url{http://eqtl.uchicago.edu/dsQTL_data/}. Here, we show how to generate {\tt chr17.10160989.10162012.pheno.dat} and {\tt chr17.10160989.10162012.2kb.cis.geno} in {\tt WaveQTL/data/dsQTL/} directory from the downloaded files, and genotype and phenotype files for other sites can be easily produced by the same procedure (with different location information).
+
+\subsection{Preparing genotype data for a given site}
+The genotype files from \url{http://eqtl.uchicago.edu/dsQTL_data/} contain mean genotypes on 209 individuals. The list of 70 individuals included in the analysis of \cite{Shim2014} is \\{\tt WaveQTL/data/Shim\_2014\_etc/DNaseI.individuals.oneline.txt}. Thus, first you need to exclude those individuals who are not in the list from the mean genotype files. One can use perl script in {\tt WaveQTL/scripts/take\_70ind.pl} (you need to change paths in the script). Then, for a given site (e.g., chr17.10160989.10162012), you need to find a set of SNPs within 2kb of the site (e.g., from 10158989 to 10164012 on chr17) from {\tt chr17.YRI.snpdata.txt} file and extract genotypes only on those SNPs from {\tt YRI.70.mean.genotype.txt}. One can use python script in {\tt WaveQTL/scripts/extract.py} (you need to change a path in the script). 
+\begin{verbatim}
+cd WaveQTL/scripts
+./extract.py 17 10158989 10164012
+\end{verbatim}
+Then, it creates {\tt chr17.10158989.10164012.YRI.mean.genotype.txt} and \\{\tt chr17.10158989.10164012.YRI.snpdata.txt} in the current working directory, which are the same as {\tt chr17.10160989.10162012.2kb.cis.noMAFfilter.geno} and \\{\tt chr17.10160989.10162012.2kb.cis.noMAFfilter.info} provided in the {\tt /WaveQTL/data/dsQTL/} directory. 
+{\tt chr17.10160989.10162012.2kb.cis.noMAFfilter.geno} contains genotypes at 31 SNPs within 2kb of the site and {\tt chr17.10160989.10162012.2kb.cis.noMAFfilter.info} contains information from {\tt chr17.YRI.snpdata.txt} for the 31 SNPs (those information is used when we prepare phenotype data. See Section~\ref{pheno}). 
+We excluded SNPs with MAF $<0.05$ as \cite{Degner_2012} did in their analysis.
+This can be accomplished by 
+\begin{verbatim}
+> in_path = "~/WaveQTL/data/dsQTL/chr17.10160989.10162012.2kb.cis.noMAFfilter.geno"
+> out_path =  "~/WaveQTL/data/dsQTL/chr17.10160989.10162012.2kb.cis.geno"
+> geno_in = read.table(in_path, as.is = TRUE)
+> GenoTypes <- as.matrix(geno_in[,-(1:3)])
+> MAF_our = apply(GenoTypes,1, sum)/(70*2)
+> wh_sel = which((MAF_our > 0.05) & (MAF_our < 0.95))
+> geno_out = geno_in[wh_sel,]
+> write.table(geno_out, file = out_path, quote= FALSE, row.names = FALSE, col.names = FALSE)
+\end{verbatim}
+
+\subsection{Preparing functional phenotypic data for a given site}\label{pheno}
+For the given site (chr17.10160989.10162012), {\tt WaveQTL/R/prepare\_functional\_phenotype.R} shows how to produce the functional phenotypic data at the site \\({\tt WaveQTL/data/dsQTL/chr17.10160989.10162012.pheno.dat}) from the downloaded files, containing
+\begin{itemize}
+\item how to read DNase-seq data at the site on 70 individuals from files in hdf5 format;
+\item how to read mappability information at the site from file in hdf5 format;
+\item how to mask 5bp surrounding any SNP (i.e., the SNP position and 2bp on either side) to eliminate biases stemming from DNase I sequence preference (see the supplementary material of \cite{Degner_2012} for details);
+\item how to combine DNase-seq data from two strands while taking mappability into account.
+\end{itemize}
+To mask 5bp surrounding any SNP at the site, we need positions of SNPs that are located at the site. Thus, we used {\tt WaveQTL/data/dsQTL/chr17.10160989.10162012.2kb.cis.noMAFfilter.info} which contains information (including positions) on SNPs within 2kb of the site (extracted from {\tt chr17.YRI.snpdata.txt.gz} file).
+
+
+
+
+
+\bibliography{waveletsManual}
+
+
+\end{document} 
