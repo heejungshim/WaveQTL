@@ -56,4 +56,6 @@ Report bugs as issues on this repository.
 
 Heejung Shim and Matthew Stephens (2014). [Wavelet-based genetic association analysis of functional phenotypes arising from high-throughput sequencing assays](http://arxiv.org/abs/1307.7203). arXiv. 1307.7203. 
 
+## Authors
 
+[Heejung Shim](https://github.com/heejungshim) (University of Chicago)
