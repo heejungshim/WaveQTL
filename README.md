@@ -1,5 +1,7 @@
 
-This repository contains WaveQTL, a software implementing a wavelet-based approach for genetic association analysis of functional phenotypes (e.g. sequence data arising from high-throughput sequencing assays).
+This repository contains WaveQTL, a software implementing a wavelet-based approach for genetic association analysis of functional phenotypes (e.g. sequence data arising from high-throughput sequencing assays), described in [Shim and Stephens 2014](http://arxiv.org/abs/1307.7203).
+
+We modified the original source code in [BIMBAM](http://www.haplotype.org/bimbam.html) to implement a wavelet-based approach.
 
 WaveQTL is a free software, you can redistribute it and/or modify it under
 the terms of the GNU General Public License (GPLv3+).
