@@ -1,7 +1,7 @@
 
 This repository contains WaveQTL, a software implementing a wavelet-based approach for genetic association analysis of functional phenotypes (e.g. sequence data arising from high-throughput sequencing assays), described in [Shim and Stephens 2014](http://arxiv.org/abs/1307.7203).
 
-We modified the original source code in [BIMBAM](http://www.haplotype.org/bimbam.html) to implement a wavelet-based approach.
+We modified source codes in [BIMBAM](http://www.haplotype.org/bimbam.html) to implement a wavelet-based approach.
 
 WaveQTL is a free software, you can redistribute it and/or modify it under
 the terms of the GNU General Public License (GPLv3+).
@@ -47,10 +47,13 @@ User manual is in the `WaveQTL/doc/manual` directory.
 3. Information on the top 1% of 1024bp sites with the highest DNase I sensitivity, analyzed in [Shim and Stephens (2014)](http://arxiv.org/abs/1307.7203), is in `WaveQTL/Shim_2014/` directory.
 4. In the user manual, we describe how to perform an analysis in [Shim and Stephens (2014)](http://arxiv.org/abs/1307.7203) for a given site, starting from reading DNase-seq data at the site on 70 individuals from raw data files (downloaded from [http://eqtl.uchicago.edu/dsQTL_data/](http://eqtl.uchicago.edu/dsQTL_data/)) to plotting estimated effect sizes in the data space as shown in the paper. 
 
+## News
+
+See the [`NEWS`](https://github.com/heejungshim/WaveQTL/blob/master/NEWS) file.
 
 ## Bug reports
 
-Report bugs as issues on this repository.
+Report bugs as issues on this repository or email the [mailing list](https://groups.google.com/forum/?hl=en#!forum/waveqtlusers).
 
 ## How to cite WaveQTL
 
