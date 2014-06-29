@@ -270,7 +270,7 @@ generate_Group <- function(numWCs, group.scale=NULL){
 ##' contains WC that contrasts the data in the (T-1)-th bp vs T-th bp.
 ##' @return filtered.WCs a vector of length T; t-th element indicates
 ##' whether t-th WC in output (WCs) filtered (0) or not (1). 
-WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NULL, meanR.thresh = 2, no.QT = FALSE, adjust.scale = 10^10, filter.number=1, family="DaubExPhase"){
+WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NULL, meanR.thresh = 2, no.QT = FALSE, filter.number=1, family="DaubExPhase"){
 
     
 	if(is.vector(Data)){dim(Data)<- c(1,length(Data))} #change Data to matrix
