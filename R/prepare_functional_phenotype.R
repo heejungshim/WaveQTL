@@ -1,7 +1,7 @@
 ## `prepare_functional_phenotype.R' contains R scripts to show 1) reading DNase-seq data from files in hdf5, 2) reading mappability information from file in hdf5, 3) masking 5bp surrounding any SNP (i.e., the SNP position and 2bp on either side) to eliminate biases stemming from DNase I sequence preference, and 4) combining DNase-seq data from two strands while taking mappability into account as we did in Shim and Stephens (2014).
 ##
 ##
-## Copyright (C) 2014 Heejung Shim
+## Copyright (C) 2014 Heejung Shim and Ester Pantaleo (for the function get.counts.h5)
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ library(rhdf5)
 
 #**************************************************************************
 #  function to Get counts from hdf5
+#  written by Ester Pantaleo
 #**************************************************************************
 get.counts.h5 <- function(list_path, chr, locus.start, locus.end, list_name = NULL){
     M <-  NULL
