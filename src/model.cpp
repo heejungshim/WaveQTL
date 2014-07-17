@@ -23,7 +23,6 @@ using namespace std;
 #include "mpi.h"
 #endif
 
-
 void ModelnData::print_progress_bar(int last, char* str, int p, int total)
 {
 	if(m_silence == 1) return; 
