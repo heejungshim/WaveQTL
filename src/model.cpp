@@ -2939,14 +2939,6 @@ int ModelnData::read_bimbam_genotype_distribution(int mode, int mcmc, long start
 //--- wavelets start --//
 void ModelnData::read_extra_information_for_functional_phenotype()
 {
-  /*
-  if(use_pheno_n.size() == 0) 
-  {
-    fplog << "ERROR: Either group start file or use pheno file is not provided. "  << endl; 
-    cout << "-bimbam: Either group start file or use pheno file is not provided. " << endl; 
-    //safe_exit(); 
-  }
-  */
   
   fstream infile; 
   streambuf * pbuf; 
@@ -2995,10 +2987,6 @@ void ModelnData::read_extra_information_for_functional_phenotype()
     infile.close(); 
   }
   
-  //  		for(int np = 0; np < (int) group_start.size(); np++){
-  //			  cout << "group start " << group_start[np] << endl;
-  //			}
-
 
 
   if(use_pheno_n.size() == 0) 
@@ -3035,9 +3023,7 @@ void ModelnData::read_extra_information_for_functional_phenotype()
     infile.close();
 
   } 
-  // 		for(int np = 0; np < (int) use_pheno.size(); np++){
-  //			  cout << "use_pheno " << use_pheno[np] << endl;
-  //              }
+
   group_start_n.resize(0);
   use_pheno_n.resize(0);
 
@@ -7933,27 +7919,6 @@ void ModelnData::single_snp_cluster(void)
 }    
 #endif 
 
-//private:
-//    int nn;   //n; 
-//    int np;   //p; 
-//    int nd;   //d; 
-//    //same notation as in paper. 
-//
-//    double ** gt;    //nxp; 
-//    double ** ph;    //nxd; 
-//    //data; 
-//
-//    int pm;
-//    double ** psi;   //dxd; 
-//    double sa;  //sigma_a;   K=diag(0, sa, sa, ...); 
-//    //prior; 
-//
-//public:
-//
-//   logbf_summaries(gsl_matrix * m1phi, gsl_matrix * m1syy, gsl_vector * v1s11, int * zz, int pm, double sa, double * lbf)
-//   logbf_rank1(double sa, double pi0, int pm, int * config, double * lbf); 
-//    single_snp_multi_phenotype(int mode); 
-//    single_snp_functional_phenotype(int mode)
 
 
 
@@ -8025,12 +7990,8 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
 
   gsl_vector * logBFs = gsl_vector_alloc(nPH);
-
-  // get phenotype - IND * phenotype
-  // get genotype  - IND * 2
   gsl_matrix * phMat = gsl_matrix_alloc(nCohort, nPH);   
   gsl_matrix * gMat = gsl_matrix_alloc(nCohort, col); 
-   
   gsl_vector * ph = gsl_vector_alloc(nCohort); 
 
 
@@ -8069,29 +8030,6 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
   }
 
 
-  //--- wavelets_v1.3 start ---//
-
-  /*
-  fstream outfile_phi; 
-  string sfn_phi("output/");
-  sfn_phi.append(fnOutput);
-  sfn_phi.append(".fph.phi.txt");
-  outfile_phi.open(sfn_phi.c_str(), ios::out);
-  if(!outfile_phi.is_open()) {
-    cout << "can't open file ... " << endl;  
-    exit(0); 
-  }
-
-  fstream outfile_mean1; 
-  string sfn_mean1("output/");
-  sfn_mean1.append(fnOutput);
-  sfn_mean1.append(".fph.mean1.txt");
-  outfile_mean1.open(sfn_mean1.c_str(), ios::out);
-  if(!outfile_mean1.is_open()) {
-    cout << "can't open file ... " << endl;  
-    exit(0); 
-  }
-  */
 
 
   fstream outfile_mean; 
@@ -8104,17 +8042,6 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
     exit(0); 
   }
 
-  /*
-  fstream outfile_var1; 
-  string sfn_var1("output/");
-  sfn_var1.append(fnOutput);
-  sfn_var1.append(".fph.var1.txt");
-  outfile_var1.open(sfn_var1.c_str(), ios::out);
-  if(!outfile_var1.is_open()) {
-    cout << "can't open file ... " << endl;  
-    exit(0); 
-  }
-  */
 
   fstream outfile_var; 
   string sfn_var("output/");
@@ -8154,11 +8081,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
       int p = use_pheno_t[i];
       gsl_matrix_get_col(ph, phMat, p);
       //--- wavelets_v1.3 start ---//
-      //logbf = bf_uni(inv_va, inv_vd, nCohort, 1, gMat, ph); 
       bf_uni(inv_va, inv_vd, nCohort, 1, gMat, ph, res);
-      //cout << "out logbf: " << res[0] << endl;
-      //cout << "out beta_mean: " << res[1] << endl;
-      //cout << "out beta_var: " << res[2] << endl;
       gsl_vector_set(logBFs, p, res[0]);
       gsl_vector_set(mean1, p, res[1]);
       gsl_vector_set(var1, p, res[2]);
@@ -8291,35 +8214,8 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
     outfile_pi << endl;
 
 
-    // mean1 and var1
-    /*
-    double out_res;
-    outfile_mean1 << vsRsnum.at(g) << " ";      
-    for(int p =0; p < nPH; p++){
-      out_res = gsl_vector_get(mean1, p);
-      if(out_res < 1e-5) 
-	sprintf(buf, "%.5f ", out_res); 
-      else 
-	sprintf(buf, "%+.5f ", out_res); 
-      outfile_mean1 << buf;
-    }
-    outfile_mean1 << endl;
- 
-    outfile_var1 << vsRsnum.at(g) << " ";      
-    for(int p =0; p < nPH; p++){
-      out_res = gsl_vector_get(var1, p);
-      if(out_res < 1e-5) 
-	sprintf(buf, "%.5f ", out_res); 
-      else 
-	sprintf(buf, "%+.5f ", out_res); 
-      outfile_var1 << buf;
-    }
-    outfile_var1 << endl;
-    */
-
     // phi, mean, and var
     double phi, mean_out, var_out, mean1_out, var1_out;
-    //outfile_phi << vsRsnum.at(g) << " ";  
     outfile_mean << vsRsnum.at(g) << " ";  
     outfile_var << vsRsnum.at(g) << " ";
     int p;
@@ -8339,40 +8235,10 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 	  var1_out = gsl_vector_get(var1,p);
 	  mean_out = phi*mean1_out;
 	  var_out = phi*(var1_out + mean1_out*mean1_out*(1-phi));
-	  /*
-	  if(phi < 1e-5) 
-	    sprintf(buf, "%.5f ", phi); 
-	  else 
-	    sprintf(buf, "%+.5f ", phi); 
-	  outfile_phi << buf;
-          */
-
-          /*
-	  if(mean_out < 1e-5) 
-	    sprintf(buf, "%.5f ", mean_out); 
-	  else 
-	    sprintf(buf, "%+.5f ", mean_out); 
-	  outfile_mean << buf;	  
-	  */
           outfile_mean << mean_out << " ";
-
-          /*  
-	  if(var_out < 1e-5) 
-	    sprintf(buf, "%.5f ", var_out); 
-	  else 
-	    sprintf(buf, "%+.5f ", var_out); 
-	  outfile_var << buf;	  
-          */
           outfile_var << var_out << " ";
 
 	}else{	
-          /*
-	  if(pi < 1e-5) 
-	    sprintf(buf, "%.5f ", pi); 
-	  else 
-	    sprintf(buf, "%+.5f ", pi); 
-	  outfile_phi << buf;
-          */
 	  sprintf(buf, "%.5f ", 0.0);
 	  outfile_mean << buf;
 	  outfile_var << buf;
@@ -8380,7 +8246,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
       }
     }
-    //outfile_phi << endl;
+
     outfile_mean << endl;
     outfile_var << endl;
 
@@ -8399,24 +8265,13 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
   //--- wavelets_v1.3 start ---//
 
-  //outfile_phi.close(); 
-  //cout << sfn_phi << " has been created." << endl;
 
   outfile_mean.close(); 
   cout << sfn_mean << " has been created." << endl;
 
-  //outfile_mean1.close(); 
-  //cout << sfn_mean1 << " has been created." << endl;
 
   outfile_var.close(); 
   cout << sfn_var << " has been created." << endl;
-
-  //outfile_var1.close(); 
-  //cout << sfn_var1 << " has been created." << endl;
-
-  //gsl_vector_free(mean1); 
-  //gsl_vector_free(var1); 
-  //--- wavelets_v1.3 end ---//
 
   
 
@@ -8426,10 +8281,8 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
   if(mode == 2){
 
-    //int numPerm = 10000;
+
     int numSig = 10;
-    //int checkNumPerm = 100;
-    //double cut = 0.1;
     int passCount = 0;
     char buf[100]; 
     vector<int> numExt;
@@ -8463,25 +8316,6 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
 
 
-    //--- wavelets_v2.1 start ---//
-    /*
-    fstream outfile_p; 
-    string sfn_p("output/");
-    sfn_p.append(fnOutput);
-    sfn_p.append(".fph.perm.txt");
-    outfile_p.open(sfn_p.c_str(), ios::out);
-    if(!outfile_p.is_open()) {
-      cout << "can't open file ... " << endl;  
-      exit(0); 
-    }
-
-    for(int g =0; g < nLoci; g++){
-      outfile_p << vsRsnum.at(g) << " "; 
-    }
-    outfile_p << endl;
-    */
-    //--- wavelets_v2.1 end ---//
-
     fstream outfile_pval; 
     string sfn_pval("output/");
     sfn_pval.append(fnOutput);
@@ -8514,21 +8348,6 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
    
     for(int eachP = 0; eachP < numPerm; eachP++){
 
-      //double denCheck = (double)(eachP + 2);
-
-      //if(eachP == checkNumPerm){
-      // double p_val;
-      // double denCheck = (double)(checkNumPerm + 1);
-      // passCount = 0;
-      // for(int g = 0; g < nLoci; g++){
-      //p_val = (double)(numExt[g]+1)/denCheck;
-      //	 if(p_val > cut){
-      //	   doneP[g] =  1;
-      //	   pval[g] = p_val;
-      //	   passCount++;
-      //	 }
-      // }
-      //} 
 
      if(passCount == nLoci){
        break;
@@ -8620,17 +8439,14 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
 	}
 
-	//outfile_pval << "g: " << g << " logLR: " << logLR << " logLRg: "  << logLR_list[g] << endl;
 	
 	if(logLR >= logLR_list[g]){
 
 
-	//outfile_pval << "haha" << endl;
-
 	  numExt[g]++;
 	  if(numExt[g] == numSig){
 	    numStop[g] = eachP + 1;
-	    //pval[g] = (double)(numExt[g]+1)/denCheck;
+
 	    double st_val = (double)(numSig + 1)/(double)(numStop[g] + 2);
 	    double en_val = (double)(numSig + 1)/(double)(numStop[g] + 1);
 	    real rand = gsl_rng_uniform(gsl_r); 
@@ -8641,30 +8457,14 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 	}
 
 
-	//--- wavelets_v2.1 start ---//
-	/*
-	if(logLR < 1e-5) 
-	  sprintf(buf, "%.5f ", logLR); 
-	else 
-	  sprintf(buf, "%+.5f ", logLR); 
-	outfile_p << buf;
-	*/
-	//--- wavelets_v2.1 end ---//
-
 	}else{
 
-	  //--- wavelets_v2.1 start ---//
-	  //outfile_p << "NA ";
-	  //--- wavelets_v2.1 end ---//
 	}
 
       }
-      //--- wavelets_v2.1 start ---//
-      //outfile_p << endl;
-      //--- wavelets_v2.1 end ---//
     }
 
-    //double p_val;
+
     double denNumPerm = (double)(numPerm + 1);
     for(int g = 0; g < nLoci; g++){
       if(doneP[g] == 0){
@@ -8672,15 +8472,9 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 	pval[g] = (double)(numExt[g]+1)/denNumPerm;
       }else{
 	outfile_pval << numStop[g];
-	//p_val = pval[g];
+
       }
       outfile_pval << " ";
-      //if(p_val < 1e-5) 
-      //	sprintf(buf, "%.5f ", p_val); 
-      //else 
-      //	sprintf(buf, "%+.5f ", p_val); 
-
-      //outfile_pval << buf;
     }
 
     outfile_pval << endl;
@@ -8688,18 +8482,11 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
     for(int g = 0; g < nLoci; g++){
       if(doneP[g] == 0){
 	outfile_pval << numExt[g];
-	//p_val = (double)(numExt[g]+1)/denNumPerm;
       }else{
 	outfile_pval << numExt[g];
-	//p_val = pval[g];
+
       }
       outfile_pval << " ";
-      //if(p_val < 1e-5) 
-      //	sprintf(buf, "%.5f ", p_val); 
-      //else 
-      //	sprintf(buf, "%+.5f ", p_val); 
-
-      //outfile_pval << buf;
     }
 
     outfile_pval << endl;
@@ -8719,11 +8506,6 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
 
 
-    //--- wavelets_v2.1 start ---//   
-    //outfile_p.close(); 
-    //cout << sfn_p << " has been created." << endl;
-    //--- wavelets_v2.1 end ---//   
-
     outfile_pval.close(); 
     cout << sfn_pval << " has been created." << endl;
 
@@ -8733,7 +8515,6 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
     gsl_matrix_free(phMat_perm);
     numExt.resize(0);
     ix_perm.resize(0);
-    //pval.resize(0);
     numStop.resize(0);
     doneP.resize(0);
   }
@@ -8744,7 +8525,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
   //--- wavelets_v2 start ---//
   if(mode == 3){
 
-    //int numPerm = 10000;
+
     int numSig = 10;
     char buf[100]; 
 
@@ -8773,25 +8554,6 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
     int doneP;
     doneP = 0;
 
-    
-    //--- wavelets_v2.1 start ---//
-    /*
-    fstream outfile_p; 
-    string sfn_p("output/");
-    sfn_p.append(fnOutput);
-    sfn_p.append(".fph.perm.txt");
-    outfile_p.open(sfn_p.c_str(), ios::out);
-    if(!outfile_p.is_open()) {
-      cout << "can't open file ... " << endl;  
-      exit(0); 
-    }
-
-    for(int g =0; g < nLoci; g++){
-      outfile_p << vsRsnum.at(g) << " "; 
-    }
-    outfile_p << endl;
-    */
-    //--- wavelets_v2.1 end ---//   
 
     fstream outfile_pval; 
     string sfn_pval("output/");
@@ -8913,27 +8675,13 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 	
 	gsl_vector_set(logLR_vec, g, logLR);
 
-	//--- wavelets_v2.1 start ---//   
-	/*
-	if(logLR < 1e-5) 
-	  sprintf(buf, "%.5f ", logLR); 
-	else 
-	  sprintf(buf, "%+.5f ", logLR); 
-	outfile_p << buf;
-	*/
-	//--- wavelets_v2.1 start ---//   
 
       }
 
-      //--- wavelets_v2.1 start ---//   
-      //outfile_p << endl;
-      //--- wavelets_v2.1 start ---//   
- 
-      //cout  << " logLR: " << max_logLR << " logLRg: "  << gsl_vector_max(logLR_vec) << endl;
 
       if(max_logLR <= gsl_vector_max(logLR_vec)){
 
-	cout << "haha " << endl;
+
 	  numExt++;
 	  if(numExt == numSig){
 	    numStop = eachP + 1;
@@ -8971,11 +8719,6 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
     outfile_pval << endl;
 
 
-
-    //--- wavelets_v2.1 start ---//   
-    //outfile_p.close(); 
-    //cout << sfn_p << " has been created." << endl;
-    //--- wavelets_v2.1 end ---//   
 
     outfile_pval.close(); 
     cout << sfn_pval << " has been created." << endl;
@@ -9015,27 +8758,6 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 }
 //--- wavelets end --//
 
-
-//private:
-//    int nn;   //n; 
-//    int np;   //p; 
-//    int nd;   //d; 
-//    //same notation as in paper. 
-//
-//    double ** gt;    //nxp; 
-//    double ** ph;    //nxd; 
-//    //data; 
-//
-//    int pm;
-//    double ** psi;   //dxd; 
-//    double sa;  //sigma_a;   K=diag(0, sa, sa, ...); 
-//    //prior; 
-//
-//public:
-//
-//   logbf_summaries(gsl_matrix * m1phi, gsl_matrix * m1syy, gsl_vector * v1s11, int * zz, int pm, double sa, double * lbf)
-//   logbf_rank1(double sa, double pi0, int pm, int * config, double * lbf); 
-//    single_snp_multi_phenotype(int mode); 
 
 
 void ModelnData::single_snp_multi_phenotype(int mode)
