@@ -453,7 +453,7 @@ public:
    double compute_prior(int *, double); 
 	
    //--- wavelets start ---//
-   void single_snp_functional_phenotype(int mode, int numPerm);
+   void single_snp_functional_phenotype(int mode, int numPerm, int nullcheck);
    //--- wavelets_v1.3 start ---//
    double bf_uni(real inv_va, real inv_vd, int ni, int ns, gsl_matrix * gXX, gsl_vector * gph);
    void bf_uni(real inv_va, real inv_vd, int ni, int ns, gsl_matrix * gXX, gsl_vector * gph, double * res);

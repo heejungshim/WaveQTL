@@ -7922,13 +7922,16 @@ void ModelnData::single_snp_cluster(void)
 
 
 //--- wavelets start --//
-void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
+void ModelnData::single_snp_functional_phenotype(int mode, int numPerm, int nullcheck)
 {
-
 
 
   int niter = 1000;
   double epsilon = 0.0005;
+  
+  //-- WaveQTL.1.1 start --//
+  double delta = 0.01;  
+  //-- WaveQTL.1.1 end --//
 
   m_df = 1;
   int col =  1 + m_df; 
@@ -8163,6 +8166,15 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 	}
       }
 
+      //-- WaveQTL.1.1 start --//
+      if(nullcheck == 1){
+	if(N_obllikli < 0){
+	  N_obllikli = 0;
+	  pp = 0;
+        }
+      }
+      //-- WaveQTL.1.1 end --//
+
       pi_list.push_back(pp/(double)numP);
       logLR += N_obllikli;
 
@@ -8172,8 +8184,7 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
 
 
-    // logLR and logBF
-    
+    // logLR and logBF    
     outfile << vsRsnum.at(g) << " "; 
     char buf[100]; 
 
@@ -8279,6 +8290,17 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
   /**************************************************/
 
   if(mode == 2){
+
+    //-- WaveQTL.1.1 start --//
+    if(nullcheck == 1){
+      for(int g =0; g < nLoci; g++){
+	if(logLR_list[g] == 0){
+	   real rand = gsl_rng_uniform(gsl_r);
+           logLR_list[g] = rand*delta*(-1);
+        }
+      } 
+    }	    
+    //-- WaveQTL.1.1 end --//
 
 
     int numSig = 10;
@@ -8434,10 +8456,26 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 	    }
 	  }      
 
+	  //-- WaveQTL.1.1 start --//
+	  if(nullcheck == 1){
+	    if(N_obllikli < 0){
+	      N_obllikli = 0;
+	    }
+	  }
+	  //-- WaveQTL.1.1 end --//
+
 	  logLR += N_obllikli;
 
 	}
 
+	//-- WaveQTL.1.1 start --//
+	if(nullcheck == 1){
+	  if(logLR == 0){
+	    real rand = gsl_rng_uniform(gsl_r);
+	    logLR = rand*delta*(-1);
+	  }
+	} 
+	//-- WaveQTL.1.1 end --//
 	
 	if(logLR >= logLR_list[g]){
 
@@ -8524,7 +8562,6 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
   //--- wavelets_v2 start ---//
   if(mode == 3){
 
-
     int numSig = 10;
     char buf[100]; 
 
@@ -8537,6 +8574,16 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
     }
     int max_ix_logLR = gsl_vector_max_index(logLR_vec);
     double max_logLR = gsl_vector_get(logLR_vec,max_ix_logLR);
+    double max_logLR_perm = 0;
+    //-- WaveQTL.1.1 start --//
+    if(nullcheck == 1){
+      if(max_logLR == 0){
+	real rand = gsl_rng_uniform(gsl_r);
+	max_logLR = rand*delta*(-1);
+      }
+    } 	    
+    //-- WaveQTL.1.1 end --//
+
   
     gsl_matrix * gMat_all = gsl_matrix_alloc(nCohort, nLoci); 
     gsl_matrix * phMat_perm = gsl_matrix_alloc(nCohort, nPH); 
@@ -8666,6 +8713,14 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 	    }
 	  }      
 
+	  //-- WaveQTL.1.1 start --//
+	  if(nullcheck == 1){
+	    if(N_obllikli < 0){
+	      N_obllikli = 0;
+	    }
+	  }
+	  //-- WaveQTL.1.1 end --//
+
 	  logLR += N_obllikli;
 
 	}
@@ -8677,8 +8732,17 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm)
 
       }
 
+      max_logLR_perm = gsl_vector_max(logLR_vec);
+      //-- WaveQTL.1.1 start --//
+      if(nullcheck == 1){
+	if(max_logLR_perm  == 0){
+	  real rand = gsl_rng_uniform(gsl_r);
+	  max_logLR_perm  = rand*delta*(-1);
+	}
+      } 	    
+      //-- WaveQTL.1.1 end --//
 
-      if(max_logLR <= gsl_vector_max(logLR_vec)){
+      if(max_logLR_perm >= max_logLR){
 
 
 	  numExt++;
