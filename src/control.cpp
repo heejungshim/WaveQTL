@@ -84,6 +84,7 @@ using namespace std;
 #define com_group_ix 7002
 #define com_use_ph 7003
 #define com_num_Perm 7004
+#define com_nullcheck 7005
 //--- wavelets end   ---//
 
 CtrlParam::CtrlParam(void)
@@ -193,6 +194,7 @@ CtrlParam::CtrlParam(void)
 	hcom["-group"] = com_group_ix;
 	hcom["-u"] = com_use_ph;
 	hcom["-numPerm"] = com_num_Perm;
+	hcom["-nullcheck"] = com_nullcheck;
 	//--- wavelets end --//
 } 
 
@@ -304,6 +306,7 @@ void CtrlParam::BatchRun(int argc, char ** argv)
 	//--- wavelets start --//
 	int fph = 0;
 	int numPerm = 10000;
+        int nullcheck = 0; 
 	//--- wavelets end --//
 
 	string fnEM; 
@@ -743,6 +746,16 @@ void CtrlParam::BatchRun(int argc, char ** argv)
 				numPerm = atoi(argv[i+1]);
 				break;
 
+			case com_nullcheck:
+				if(argv[i+1] == NULL || argv[i+1][0] == '-') continue;
+				if(!isdigit(argv[i+1][0]))
+				{
+					cout << "wrong argument after option." << endl; 
+					exit(0); 
+				}
+				nullcheck = atoi(argv[i+1]);
+				break;
+
 		        //--- wavelets end --//
 
 			default:
@@ -917,7 +930,7 @@ void CtrlParam::BatchRun(int argc, char ** argv)
 		if(fph > 0) 
 		{
 		        pMD->read_extra_information_for_functional_phenotype(); 
-			pMD->single_snp_functional_phenotype(fph, numPerm);
+			pMD->single_snp_functional_phenotype(fph, numPerm, nullcheck);
 			return; 
 		}
 		//--- wavelets end --//
