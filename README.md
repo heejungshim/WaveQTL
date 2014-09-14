@@ -57,7 +57,7 @@ Report bugs as issues on this repository or email the [mailing list](https://gro
 
 ## How to cite WaveQTL
 
-Heejung Shim and Matthew Stephens (2014). [Wavelet-based genetic association analysis of functional phenotypes arising from high-throughput sequencing assays](http://arxiv.org/abs/1307.7203). arXiv. 1307.7203. 
+Heejung Shim and Matthew Stephens (2014). [Wavelet-based genetic association analysis of functional phenotypes arising from high-throughput sequencing assays](http://arxiv.org/abs/1307.7203). arXiv. 1307.7203. To appear in AOAS. 
 
 ## Author
 
