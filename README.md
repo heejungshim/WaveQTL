@@ -40,7 +40,7 @@ Then, binary executable file will be created in the `WaveQTL/` directory.
 
 User manual is in the `WaveQTL/doc/manual` directory.
 
-## dsQTLs and analysis in Shim and Stephens (2014)
+## dsQTLs and analysis in Shim and Stephens (2015)
 
 1. The main manuscript and supplementary materials of [Shim and Stephens (2015)](http://projecteuclid.org/euclid.aoas/1437397106) are in the `WaveQTL/doc/paper` directory.
 2. Information on dsQTLs identified by our analysis in [Shim and Stephens (2015)](http://projecteuclid.org/euclid.aoas/1437397106) is in `WaveQTL/Shim_2014/` directory.
