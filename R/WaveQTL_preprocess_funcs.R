@@ -32,35 +32,35 @@ require("wavethresh")
 ##' @return filtered.WCs a vector of length T; t-th element indicates whether t-th WC in output from the function \code{\link{FWT}} is filtered (0) or not (1). 
 fiter.WCs <- function(Data, meanR.thresh){
 
-        if(is.vector(Data)){
-            dim(Data) <- c(1, length(Data))
-        }        
-  	numWCs = dim(Data)[2]
-  	J = log2(numWCs)
-
+  if(is.vector(Data)){
+    dim(Data) <- c(1, length(Data))
+  }        
+  numWCs = dim(Data)[2]
+  J = log2(numWCs)
+  
 	Mean_R = rep(NA, numWCs)
-        Mean_R[1] = mean(apply(Data, 1, sum))
-        Mean_R[2] = Mean_R[1]
+  Mean_R[1] = mean(apply(Data, 1, sum))
+  Mean_R[2] = Mean_R[1]
 
-        posi = 3
-        for(ss in 1:(J-1)){
-                num_loc = 2^ss
-                size_int = numWCs/num_loc
-                st = (0:(num_loc-1))*size_int + 1
-                en = st + size_int -1
-
-                for(ll in 1:num_loc){
-                        Mean_R[posi] = mean(apply(Data[,st[ll]:en[ll]], 1, sum))
-                        posi = posi + 1
-                }
-        }
+  posi = 3
+  for(ss in 1:(J-1)){
+    num_loc = 2^ss
+    size_int = numWCs/num_loc
+    st = (0:(num_loc-1))*size_int + 1
+    en = st + size_int -1
+    
+    for(ll in 1:num_loc){
+      Mean_R[posi] = mean(apply(Data[,st[ll]:en[ll]], 1, sum))
+      posi = posi + 1
+    }
+  }
 
 	filtered.WCs = rep(0, numWCs)
 	wh = which(Mean_R > meanR.thresh)
 
-        if(length(wh) > 0){
-        	filtered.WCs[wh] = rep(1, length(wh))
-        }
+  if(length(wh) > 0){
+    filtered.WCs[wh] = rep(1, length(wh))
+  }
 
 	return(filtered.WCs)
 }
@@ -89,12 +89,12 @@ fiter.WCs <- function(Data, meanR.thresh){
 ##' contains WC that contrasts the data in the (T-1)-th bp vs T-th bp.
 FWT <- function(Data, filter.number=1, family="DaubExPhase"){
 
-        if(is.vector(Data)){
-            dim(Data) <- c(1, length(Data))
-        }    
-  	T = dim(Data)[2]
-  	J = log2(T)
-  	N = dim(Data)[1]
+  if(is.vector(Data)){
+    dim(Data) <- c(1, length(Data))
+  }    
+  T = dim(Data)[2]
+  J = log2(T)
+  N = dim(Data)[1]
 
 	dat_D = matrix(data=NA, nr = N, nc = (T - 1))
 	dat_C = rep(NA, N)
@@ -211,16 +211,16 @@ Normalize.WCs <- function(WCs, Covariates=NULL){
 ##' from 17th to the end (1024th) positions are in the fourth group. 
 generate_Group <- function(numWCs, group.scale=NULL){
     
-    J = log(numWCs, 2)
+  J = log(numWCs, 2)
     
-    if(is.null(group.scale)){
-        group.scale = 0:J
-    }
-
-    IX = 2^(group.scale[-1]-1)
-    group = c(1, (IX+1))
-
-    return(group)
+  if(is.null(group.scale)){
+    group.scale = 0:J
+  }
+  
+  IX = 2^(group.scale[-1]-1)
+  group = c(1, (IX+1))
+  
+  return(group)
 }
 
 
@@ -274,7 +274,7 @@ WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NUL
 
     
 	if(is.vector(Data)){dim(Data)<- c(1,length(Data))} #change Data to matrix
-  	if(nrow(Data)==1){Covariates = NULL} #if only one observation, don't correct for covariates
+  if(nrow(Data)==1){Covariates = NULL} #if only one observation, don't correct for covariates
 
 	if(!is.null(Covariates)){
 		if(is.vector(Covariates)){dim(Covariates)<- c(1,length(Covariates))} #change C to matrix
@@ -282,10 +282,10 @@ WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NUL
 
 
 
-  	T = dim(Data)[2]
-  	J = log2(T)
-  	if(!isTRUE(all.equal(J,trunc(J)))){stop("Error: number of columns of Data must be power of 2")}
-  	N = dim(Data)[1]
+  T = dim(Data)[2]
+  J = log2(T)
+  if(!isTRUE(all.equal(J,trunc(J)))){stop("Error: number of columns of Data must be power of 2")}
+  N = dim(Data)[1]
         
         
 	### generate filtered.WCs
@@ -296,34 +296,31 @@ WaveQTL_preprocess <- function(Data, library.read.depth = NULL, Covariates = NUL
 	}	
 
         
-        ### corrected for read depth
-        if(!is.null(library.read.depth)){
-            DataC = Data/library.read.depth
-        }else{
-            DataC = Data
-        }
-        
-	### Wavelet Transform
-        WCs = FWT(DataC, filter.number=filter.number, family=family)$WCs
+  ## corrected for read depth
+  if(!is.null(library.read.depth)){
+    DataC = Data/library.read.depth
+  }else{
+    DataC = Data
+  }
+  
+	## Wavelet Transform
+  WCs = FWT(DataC, filter.number=filter.number, family=family)$WCs
 
-	
-        if(!no.QT){ # Normalize phenotype for testing
-            ### Normalize WCs    
-            if(N > 1){
+  if(!no.QT){ # Normalize phenotype for testing
+    ## Normalize WCs    
+    if(N > 1){
 		WCs = Normalize.WCs(WCs, Covariates)
-            }
-            WCs = WCs$QT_WCs
-        }else{  # Normalize for effect size estimation 
-            ### correct for Covariates 
-            if(!is.null(Covariates)){
-		WCs = apply(WCs, 2, corrected_forCovariates, Covariates)
-            }
-        }
-        
-        return(list(WCs = WCs, filtered.WCs = filtered.WCs))
-    } 
-
-
+  }
+    WCs = WCs$QT_WCs
+  }else{  # Normalize for effect size estimation 
+    ## correct for Covariates 
+    if(!is.null(Covariates)){
+      WCs = apply(WCs, 2, corrected_forCovariates, Covariates)
+    }
+  }
+  
+  return(list(WCs = WCs, filtered.WCs = filtered.WCs))
+} 
 
 
 
