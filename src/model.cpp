@@ -8303,9 +8303,9 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm, int null
     //-- WaveQTL.1.1 end --//
 
 
-    int numSig = 10;
+    int numSig = 100;
     int passCount = 0;
-    char buf[100]; 
+    //char buf[100]; 
     vector<int> numExt;
     numExt.resize(0);
     for(int i = 0; i < nLoci; i++){
@@ -8530,17 +8530,20 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm, int null
 
 
 
-    for(int g = 0; g < nLoci; g++){
-      if(pval[g] < 1e-5) 
-	sprintf(buf, "%.5f ", pval[g]); 
-      else 
-      	sprintf(buf, "%+.5f ", pval[g]); 
 
-      outfile_pval << buf;
+    //-- WaveQTL.1.1 start --//
+    for(int g = 0; g < nLoci; g++){
+      //    if(pval[g] < 1e-5) 
+      //sprintf(buf, "%.5f ", pval[g]); 
+      //else 
+      //	sprintf(buf, "%+.5f ", pval[g]); 
+
+      outfile_pval << pval[g] << " ";
     }
 
     outfile_pval << endl;
-
+    //-- WaveQTL.1.1 end --//
+   
 
 
     outfile_pval.close(); 
@@ -8562,8 +8565,8 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm, int null
   //--- wavelets_v2 start ---//
   if(mode == 3){
 
-    int numSig = 10;
-    char buf[100]; 
+    int numSig = 100;
+    // char buf[100]; 
 
     int numExt;
     numExt = 0;
@@ -8773,12 +8776,12 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm, int null
     }
     outfile_pval << endl;
 
-    if(pval < 1e-5) 
-      sprintf(buf, "%.5f ", pval); 
-    else 
-      sprintf(buf, "%+.5f ", pval); 
 
-    outfile_pval << buf;
+
+    //-- WaveQTL.1.1 start --//
+    outfile_pval << pval << " ";
+    //-- WaveQTL.1.1 end --//
+
     outfile_pval << endl;
 
 
