@@ -8062,6 +8062,39 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm, int null
   //--- wavelets_v1.3 end ---//
 
 
+  //--- wavelets_v2_2 start ---//
+  
+  fstream outfile_mean1; 
+  string sfn_mean1("output/");
+  sfn_mean1.append(fnOutput);
+  sfn_mean1.append(".fph.mean1.txt");
+  outfile_mean1.open(sfn_mean1.c_str(), ios::out);
+  if(!outfile_mean1.is_open()) {
+    cout << "can't open file ... " << endl;  
+    exit(0); 
+  }
+
+  fstream outfile_var1; 
+  string sfn_var1("output/");
+  sfn_var1.append(fnOutput);
+  sfn_var1.append(".fph.var1.txt");
+  outfile_var1.open(sfn_var1.c_str(), ios::out);
+  if(!outfile_var1.is_open()) {
+    cout << "can't open file ... " << endl;  
+    exit(0); 
+  }
+
+  fstream outfile_phi; 
+  string sfn_phi("output/");
+  sfn_phi.append(fnOutput);
+  sfn_phi.append(".fph.phi.txt");
+  outfile_phi.open(sfn_phi.c_str(), ios::out);
+  if(!outfile_phi.is_open()) {
+    cout << "can't open file ... " << endl;  
+    exit(0); 
+  }
+
+  //--- wavelets_v2_2 end ---//
   
   logLR_list.resize(0);
   // Calculate for each genotype!!
@@ -8228,6 +8261,12 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm, int null
     double phi, mean_out, var_out, mean1_out, var1_out;
     outfile_mean << vsRsnum.at(g) << " ";  
     outfile_var << vsRsnum.at(g) << " ";
+    //-- wavelets_v2_2 start --//
+    outfile_mean1 << vsRsnum.at(g) << " ";  
+    outfile_var1 << vsRsnum.at(g) << " ";
+    outfile_phi << vsRsnum.at(g) << " ";
+    //-- wavelets_v2_2 end --//
+  
     int p;
     for(int gi =0; gi < numG; gi++){
       pi = pi_list[gi]; 
@@ -8245,13 +8284,22 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm, int null
 	  var1_out = gsl_vector_get(var1,p);
 	  mean_out = phi*mean1_out;
 	  var_out = phi*(var1_out + mean1_out*mean1_out*(1-phi));
-          outfile_mean << mean_out << " ";
-          outfile_var << var_out << " ";
-
+    outfile_mean << mean_out << " ";
+    outfile_var << var_out << " ";
+    //-- wavelets_v2_2 start --//
+    outfile_mean1 << mean1_out << " ";
+    outfile_var1 << var1_out << " ";
+    outfile_phi << phi << " ";
+    //-- wavelets_v2_2 end --//
 	}else{	
 	  sprintf(buf, "%.5f ", 0.0);
 	  outfile_mean << buf;
 	  outfile_var << buf;
+    //-- wavelets_v2_2 start --//
+	  outfile_mean1 << buf;
+	  outfile_var1 << buf;
+	  outfile_phi << buf;
+    //-- wavelets_v2_2 end --//
 	}
 
       }
@@ -8259,6 +8307,12 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm, int null
 
     outfile_mean << endl;
     outfile_var << endl;
+    //-- wavelets_v2_2 start --//
+    outfile_mean1 << endl;
+    outfile_var1 << endl;
+    outfile_phi << endl; 
+   //-- wavelets_v2_2 end --//
+
 
   }
 
@@ -8283,7 +8337,18 @@ void ModelnData::single_snp_functional_phenotype(int mode, int numPerm, int null
   outfile_var.close(); 
   cout << sfn_var << " has been created." << endl;
 
-  
+
+  //-- wavelets_v2_2 start --//
+  outfile_mean1.close(); 
+  cout << sfn_mean1 << " has been created." << endl;
+
+  outfile_var1.close(); 
+  cout << sfn_var1 << " has been created." << endl;
+
+  outfile_phi.close(); 
+  cout << sfn_phi << " has been created." << endl;
+  //-- wavelets_v2_2 end --//
+
 
   /**************************************************/
   //       For permutation test                      //
