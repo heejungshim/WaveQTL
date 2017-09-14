@@ -61,4 +61,4 @@ Heejung Shim and Matthew Stephens (2015). [Wavelet-based genetic association ana
 
 ## Author
 
-[Heejung Shim](https://github.com/heejungshim) (University of Chicago)
+[Heejung Shim](https://github.com/heejungshim) (University of Melbourne)
