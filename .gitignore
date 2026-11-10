@@ -1,4 +1,78 @@
+# Original WaveQTL ignores
 .Rhistory
 *~
 *.repodir.txt
 *.o
+
+# Locally compiled WaveQTL binary at repository root and package bin
+/WaveQTL
+waveqtl2d/bin/
+
+# Data & matrix files (prevent accidental data leaks)
+*.tsv
+*.tsv.gz
+*.csv
+*.csv.gz
+*.parquet
+*.feather
+*.npz
+*.npy
+*.h5
+*.hdf5
+*.rds
+*.rda
+*.RData
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# Local outputs, results, and scratch directories
+output/
+results/
+scratch/
+tmp/
+data_local/
+examples/output/
+examples/data/
+
+# Generated figures (allow only curated synthetic doc assets)
+*.png
+!docs/assets/*.png
+
+# Python packaging, caches, and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+.python-version
+
+# Secrets, credentials, and editor/OS artifacts
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.token
+credentials.json
+secrets.yaml
+secrets.json
+.DS_Store
+Thumbs.db
+.vscode/
+*.code-workspace
+.idea/
+.obsidian/
+*.swp
+*.swo
