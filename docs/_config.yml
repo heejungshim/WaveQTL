@@ -1,0 +1,4 @@
+title: WaveQTL-2D
+description: 2D symmetric matrix comparison wrapper around WaveQTL using 2D Haar wavelets.
+theme: minima
+markdown: kramdown
